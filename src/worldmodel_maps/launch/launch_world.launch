@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="WORLD_NAME" default="Vegas_track" />
+    <arg name="world_name" default="Bowtie_track" />
  
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find worldmodel_maps)/worlds/$(arg WORLD_NAME).world"/>
+    <arg name="world_name" value="$(find worldmodel_maps)/worlds/$(arg world_name).world"/>
     <arg name="gui" value="true"/>
+    <arg name="verbose" value="true" />
   </include>
-         
+  
+
 
 </launch>

@@ -13,7 +13,7 @@
       <visual name="visual">
         <geometry>
           <mesh>
-            <uri>model://deepracer_simulation/meshes/hard_loopy_track/hard_loopy_track.dae</uri>
+            <uri>model://meshes/hard_loopy_track/hard_loopy_track.dae</uri>
           </mesh>
         </geometry>
       </visual>
