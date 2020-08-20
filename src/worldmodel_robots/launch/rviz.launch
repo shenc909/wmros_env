@@ -25,5 +25,5 @@ limitations under the License.
 
 <launch>
   <arg name="namespace" default="ackermann_vehicle"/>
-  <node name="rviz" pkg="rviz" type="rviz" ns="$(arg namespace)"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find worldmodel_robots)/rviz/robot_viz.rviz" ns="$(arg namespace)"/>
 </launch>
