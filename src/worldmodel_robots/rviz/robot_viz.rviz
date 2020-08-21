@@ -8,8 +8,6 @@ Panels:
         - /Status1
         - /TF1
         - /TF1/Frames1
-        - /TF1/Tree1/base_link1
-        - /TF1/Tree1/base_link1/chassis1
         - /RobotModel1/Links1
       Splitter Ratio: 0.607594907283783
     Tree Height: 1573
@@ -247,15 +245,15 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.026612134650349617
-        Y: -0.04246276989579201
-        Z: -0.001596509711816907
+        X: 0.007779394742101431
+        Y: -0.01327710971236229
+        Z: -0.04514582082629204
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6453975439071655
+      Pitch: 0.6703974008560181
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
       Yaw: 2.0353972911834717
