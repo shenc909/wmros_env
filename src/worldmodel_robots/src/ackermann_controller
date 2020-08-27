@@ -137,6 +137,8 @@ class _AckermannCtrlr(object):
 
         rospy.init_node("ackermann_controller")
 
+        self.tfPrefix = rospy.get_param("~tf_prefix")
+
         # Parameters
 
         # Wheels
@@ -262,6 +264,7 @@ class _AckermannCtrlr(object):
         self._right_rear_axle_cmd_pub = \
             _create_axle_cmd_pub(list_ctrlrs, right_rear_axle_ctrlr_name)
 
+
         self._ackermann_cmd_sub = \
             rospy.Subscriber("ackermann_cmd", AckermannDrive,
                              self.ackermann_cmd_cb, queue_size=1)
@@ -372,10 +375,11 @@ class _AckermannCtrlr(object):
         while True:
             try:
                 trans, not_used = \
-                    tfl.lookupTransform(self._right_rear_link_name, link,
+                    tfl.lookupTransform(self.tfPrefix + "/" + self._right_rear_link_name, self.tfPrefix + "/" + link,
                                         rospy.Time(0))
                 return numpy.array(trans)
-            except:
+            except Exception as e:
+                # rospy.logerr_throttle(1, e.__class__)
                 pass
 
     def _ctrl_steering(self, steer_ang, steer_ang_vel_limit, delta_t):

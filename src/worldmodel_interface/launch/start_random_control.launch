@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="namespace" default="ackermann_vehicle"/>
+
+  <group ns="$(arg namespace)">
+    <remap from="/ackermann_cmd" to="/$(arg namespace)/ackermann_cmd"/>
+    <node name="ackermann_random" pkg="worldmodel_interface" type="ackermann_publisher.py"/>
+  </group>
+</launch>

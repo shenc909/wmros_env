@@ -7,10 +7,10 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1
-        - /TF1/Frames1
-        - /RobotModel1/Links1
-      Splitter Ratio: 0.607594907283783
-    Tree Height: 1573
+        - /Camera1
+        - /Camera1/Visibility1
+      Splitter Ratio: 0.7771226167678833
+    Tree Height: 674
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -29,7 +29,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: Camera
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -60,66 +60,73 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        base_link:
-          Value: false
-        chassis:
+        ackermann_vehicle/base_link:
           Value: true
-        left_battery:
-          Value: false
-        left_battery_offset:
-          Value: false
-        left_front_axle_carrier:
-          Value: false
-        left_front_wheel:
+        ackermann_vehicle/camera_link:
           Value: true
-        left_rear_axle_carrier:
+        ackermann_vehicle/chassis:
           Value: false
-        left_rear_wheel:
-          Value: true
-        left_steering_link:
-          Value: true
-        right_battery:
+        ackermann_vehicle/left_battery:
           Value: false
-        right_battery_offset:
+        ackermann_vehicle/left_battery_offset:
           Value: false
-        right_front_axle_carrier:
+        ackermann_vehicle/left_front_axle_carrier:
           Value: false
-        right_front_wheel:
+        ackermann_vehicle/left_front_wheel:
           Value: true
-        right_rear_axle_carrier:
+        ackermann_vehicle/left_rear_axle_carrier:
           Value: false
-        right_rear_wheel:
+        ackermann_vehicle/left_rear_wheel:
           Value: true
-        right_steering_link:
+        ackermann_vehicle/left_steering_link:
           Value: true
-      Marker Scale: 0.6000000238418579
+        ackermann_vehicle/right_battery:
+          Value: false
+        ackermann_vehicle/right_battery_offset:
+          Value: false
+        ackermann_vehicle/right_front_axle_carrier:
+          Value: false
+        ackermann_vehicle/right_front_wheel:
+          Value: true
+        ackermann_vehicle/right_rear_axle_carrier:
+          Value: false
+        ackermann_vehicle/right_rear_wheel:
+          Value: true
+        ackermann_vehicle/right_steering_link:
+          Value: true
+        world:
+          Value: true
+      Marker Scale: 0.5
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        base_link:
-          chassis:
-            left_battery_offset:
-              left_battery:
+        world:
+          ackermann_vehicle/base_link:
+            ackermann_vehicle/chassis:
+              ackermann_vehicle/camera_link:
                 {}
-            left_rear_axle_carrier:
-              left_rear_wheel:
-                {}
-            left_steering_link:
-              left_front_axle_carrier:
-                left_front_wheel:
+              ackermann_vehicle/left_battery_offset:
+                ackermann_vehicle/left_battery:
                   {}
-            right_battery_offset:
-              right_battery:
-                {}
-            right_rear_axle_carrier:
-              right_rear_wheel:
-                {}
-            right_steering_link:
-              right_front_axle_carrier:
-                right_front_wheel:
+              ackermann_vehicle/left_rear_axle_carrier:
+                ackermann_vehicle/left_rear_wheel:
                   {}
+              ackermann_vehicle/left_steering_link:
+                ackermann_vehicle/left_front_axle_carrier:
+                  ackermann_vehicle/left_front_wheel:
+                    {}
+              ackermann_vehicle/right_battery_offset:
+                ackermann_vehicle/right_battery:
+                  {}
+              ackermann_vehicle/right_rear_axle_carrier:
+                ackermann_vehicle/right_rear_wheel:
+                  {}
+              ackermann_vehicle/right_steering_link:
+                ackermann_vehicle/right_front_axle_carrier:
+                  ackermann_vehicle/right_front_wheel:
+                    {}
       Update Interval: 0
       Value: true
     - Alpha: 0.5
@@ -133,6 +140,11 @@ Visualization Manager:
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
         base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        camera_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -206,15 +218,31 @@ Visualization Manager:
           Show Trail: false
       Name: RobotModel
       Robot Description: robot_description
-      TF Prefix: ""
+      TF Prefix: ackermann_vehicle
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Class: rviz/Camera
+      Enabled: true
+      Image Rendering: background and overlay
+      Image Topic: /ackermann_vehicle/camera1/image_raw
+      Name: Camera
+      Overlay Alpha: 0.5
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+      Visibility:
+        Grid: false
+        RobotModel: false
+        TF: false
+        Value: true
+      Zoom Factor: 1
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: base_link
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -238,7 +266,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.9135103821754456
+      Distance: 1.777413249015808
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -253,18 +281,20 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6703974008560181
+      Pitch: 0.8247973322868347
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.0353972911834717
+      Yaw: 2.1603972911834717
     Saved: ~
 Window Geometry:
+  Camera:
+    collapsed: false
   Displays:
     collapsed: false
   Height: 2049
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000035200000713fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b000000ab00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000069000007130000017800fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000014f00000713fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730100000069000007130000012300fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e1000001970000000300000e7a00000050fc0100000002fb0000000800540069006d0065010000000000000e7a0000045300fffffffb0000000800540069006d00650100000000000004500000000000000000000009c10000071300000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000035200000713fc0200000009fb0000001200530065006c0065006300740069006f006e00000001e10000009b000000ab00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000069000003900000017800fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000c00430061006d0065007200610100000405000003770000002100ffffff000000010000014f00000713fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730100000069000007130000012300fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e1000001970000000300000e7a00000050fc0100000002fb0000000800540069006d0065010000000000000e7a0000045300fffffffb0000000800540069006d00650100000000000004500000000000000000000009c10000071300000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
