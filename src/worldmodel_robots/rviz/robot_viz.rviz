@@ -6,9 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TF1
-        - /Camera1
-        - /Camera1/Visibility1
       Splitter Ratio: 0.7771226167678833
     Tree Height: 674
   - Class: rviz/Selection
@@ -79,7 +76,7 @@ Visualization Manager:
         ackermann_vehicle/left_rear_wheel:
           Value: true
         ackermann_vehicle/left_steering_link:
-          Value: true
+          Value: false
         ackermann_vehicle/right_battery:
           Value: false
         ackermann_vehicle/right_battery_offset:
@@ -93,10 +90,10 @@ Visualization Manager:
         ackermann_vehicle/right_rear_wheel:
           Value: true
         ackermann_vehicle/right_steering_link:
-          Value: true
+          Value: false
         world:
           Value: true
-      Marker Scale: 0.5
+      Marker Scale: 0.4000000059604645
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -129,7 +126,7 @@ Visualization Manager:
                     {}
       Update Interval: 0
       Value: true
-    - Alpha: 0.5
+    - Alpha: 0.4000000059604645
       Class: rviz/RobotModel
       Collision Enabled: false
       Enabled: true
@@ -217,14 +214,14 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
       Name: RobotModel
-      Robot Description: robot_description
+      Robot Description: /ackermann_vehicle/robot_description
       TF Prefix: ackermann_vehicle
       Update Interval: 0
       Value: true
       Visual Enabled: true
     - Class: rviz/Camera
       Enabled: true
-      Image Rendering: background and overlay
+      Image Rendering: background
       Image Topic: /ackermann_vehicle/camera1/image_raw
       Name: Camera
       Overlay Alpha: 0.5
@@ -266,25 +263,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.777413249015808
+      Distance: 2.016258955001831
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.007779394742101431
-        Y: -0.01327710971236229
-        Z: -0.04514582082629204
+        X: 0.13773125410079956
+        Y: -0.2296733260154724
+        Z: 0.1704447716474533
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8247973322868347
+      Pitch: 0.7047968506813049
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.1603972911834717
+      Yaw: 1.935390591621399
     Saved: ~
 Window Geometry:
   Camera:
