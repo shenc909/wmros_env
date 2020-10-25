@@ -411,7 +411,7 @@ limitations under the License.
 
   <joint name="camera_joint" type="fixed">
     <axis xyz="0 0 0" />
-    <origin xyz="0 0 3.0" rpy="0 ${degrees_90} 0"/>
+    <origin xyz="0 0 2.0" rpy="0 ${degrees_90} 0"/>
     <parent link="chassis"/>
     <child link="camera_link"/>
   </joint>
@@ -459,7 +459,7 @@ limitations under the License.
     <sensor type="camera" name="camera1">
       <update_rate>30.0</update_rate>
       <camera name="head">
-        <horizontal_fov>1.3962634</horizontal_fov>
+        <horizontal_fov>1.7962634</horizontal_fov>
         <image>
           <width>800</width>
           <height>800</height>
