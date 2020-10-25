@@ -116,7 +116,7 @@ limitations under the License.
     <color rgba="0 0 1 1"/>
   </material>
   <material name="chassis_mat">
-    <color rgba="0.5 0.5 0.5 1"/>
+    <color rgba="0.7 0.1 0.1 1"/>
   </material>
   <material name="tire_mat">
     <color rgba="0 0 0 1"/>
@@ -357,7 +357,7 @@ limitations under the License.
     </visual>
   </link>
   <gazebo reference="base_link">
-    <material>Gazebo/Grey</material>
+    <material>Gazebo/Red</material>
   </gazebo>
 
   <!-- Chassis -->
@@ -384,7 +384,7 @@ limitations under the License.
     </xacro:solid_cuboid_inertial>
   </link>
   <gazebo reference="chassis">
-    <material>Gazebo/Grey</material>
+    <material>Gazebo/Red</material>
   </gazebo>
 
   <joint name="base_link_to_chassis" type="fixed">
@@ -411,7 +411,7 @@ limitations under the License.
 
   <joint name="camera_joint" type="fixed">
     <axis xyz="0 0 0" />
-    <origin xyz="0 0 1.5" rpy="0 ${degrees_90} 0"/>
+    <origin xyz="0 0 3.0" rpy="0 ${degrees_90} 0"/>
     <parent link="chassis"/>
     <child link="camera_link"/>
   </joint>
