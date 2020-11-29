@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <sdf version="1.4">
-<world name="fyp_track_1">
+<world name="fyp_track_14">
 <scene>
 <ambient>0.5 0.5 0.5 1.0</ambient>
 <shadows>0</shadows>
@@ -35,7 +35,7 @@
 <cast_shadows>false</cast_shadows>
 </light>
 <include>
-<uri>model://models/fyp_tracks/track1</uri>
+<uri>model://models/fyp_tracks/track14</uri>
 <pose>0 0 0 0 0 0</pose>
 <name>racetrack</name>
 </include>
