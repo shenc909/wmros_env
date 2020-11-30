@@ -4,6 +4,8 @@
   <arg name="namespace" default="ackermann_vehicle"/>
   <arg name="world_name" default="Bowtie_track" />
   <arg name="cmd_timeout" default="0.5"/>
+  <arg name="rviz" default="true"/>
+  <arg name="gazebo_gui" default="false"/>
   <!-- Vehicle pose -->
   <arg name="x" default="0.0"/>
   <arg name="y" default="0.0"/>
@@ -12,12 +14,16 @@
   <arg name="pitch" default="0.0"/>
   <arg name="yaw" default="0.0"/>
 
-  <include file="$(find worldmodel_robots)/launch/rviz.launch">
-    <arg name="namespace" value="$(arg namespace)"/>
-  </include>
+
+  <group if="$(arg rviz)">
+    <include file="$(find worldmodel_robots)/launch/rviz.launch">
+      <arg name="namespace" value="$(arg namespace)"/>
+    </include>
+  </group>
 
   <include file="$(find worldmodel_maps)/launch/launch_world.launch">
     <arg name="world_name" value="$(arg world_name)"/>
+    <arg name="gui" value="$(arg gazebo_gui)"/>
   </include>
 
   <include file="$(find worldmodel_robots)/launch/spawn_car.launch">
