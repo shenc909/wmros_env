@@ -8,7 +8,7 @@ import rospy
 track_prefix = 'track'
 track_number = 2
 
-rosbag_command = 'rosbag record -a --duration=30 --lz4'
+rosbag_command = 'rosbag record -a --duration=30 --lz4 -q'
 record_dir = '/home/shenc/recorded'
 
 def main():
