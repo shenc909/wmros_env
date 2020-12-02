@@ -15,7 +15,7 @@
 <pose>20 10 15.0 0 0 0</pose>
 <cast_shadows>false</cast_shadows>
 <attenuation>
-<constant>0.5</constant>
+<constant>0.7</constant>
 <linear>0.01</linear>
 <quadratic>0.0</quadratic>
 <range>100</range>
@@ -26,7 +26,7 @@
 <diffuse>.9 .9 .9 1</diffuse>
 <specular>.1 .1 .1 1</specular>
 <attenuation>
-<constant>0.4</constant>
+<constant>0.7</constant>
 <linear>0.01</linear>
 <quadratic>0.00</quadratic>
 <range>100</range>
