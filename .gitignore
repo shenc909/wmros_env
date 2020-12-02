@@ -52,3 +52,4 @@ CATKIN_IGNORE
 .vscode/settings.json
 .vscode/c_cpp_properties.json
 src/.vscode
+*.bag
