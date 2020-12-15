@@ -4,6 +4,7 @@ from gym import spaces
 import gazebo_env
 from std_srvs.srv import Empty
 from ackermann_msgs.msg import AckermannDrive
+from sensor_msgs.msg import Image
 from gym.utils import seeding
 
 class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
@@ -48,7 +49,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         data = None
         while data is None:
             try:
-                data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+                data = rospy.wait_for_message('/ackermann_vehicle/camera1/image_raw', Image, timeout=5)
             except:
                 pass
 
