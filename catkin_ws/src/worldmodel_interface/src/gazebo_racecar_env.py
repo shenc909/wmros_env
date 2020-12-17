@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import rospy
 import gym
 from gym import spaces
@@ -6,6 +8,7 @@ from std_srvs.srv import Empty
 from ackermann_msgs.msg import AckermannDrive
 from sensor_msgs.msg import Image
 from gym.utils import seeding
+import numpy as np
 
 class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     """Gazebo racecar environment"""
@@ -19,7 +22,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
         self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
 
-        self.action_space = spaces.Box(2, low=[], high=[]) #speed, steering angle
+        self.action_space = spaces.Box(low=10, high=20, shape=(2,1)) #speed, steering angle
         self.reward_range = (-np.inf, np.inf)
 
         self._seed()

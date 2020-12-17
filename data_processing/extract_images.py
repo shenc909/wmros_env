@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import rosbag
 import numpy as np
 import cv2
