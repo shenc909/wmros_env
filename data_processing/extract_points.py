@@ -7,6 +7,9 @@ from os import listdir
 from os.path import isfile, join
 
 file_path = './track_dxf/'
+dest_path = './track_waypoints/'
+
+CHECK_PLOT = False
 
 # Function for determining start and direction of generated waypoints (in loop)
 def startZero(waypoints):
@@ -185,33 +188,38 @@ def arcCalc(coord1, coord2, residual, spacing):
 def main():
     # Read all files in file_path
     dxf_files = [f for f in listdir(file_path) if isfile(join(file_path, f))]
-    dxf_files = [file_path + f for f in dxf_files]
+    dxf_files_dir = [file_path + f for f in dxf_files]
     # print(dxf_files)
     # print(dxf_files[10])
     # dxf_files = ['C:/Users/shenc/Documents/GitHub/wmros_env/data_processing/track_dxf/track14.dxf']
-    for dxf_file in dxf_files:
+    for dxf_file, filename in zip(dxf_files_dir, dxf_files):
         coords = getPolylinePoints(dxf_file)
-        print(dxf_file)
-        waypoints = walker(coords, 1)
+        print(f'Extracting from {dxf_file}')
+        # create waypoints, second arg is spacing between waypoints
+        waypoints = walker(coords, 0.1)
         waypoints = startZero(waypoints)
 
-        x = []
-        y = []
-        colors = cm.rainbow(np.linspace(0, 1, len(waypoints)))
-        for i, c in zip(waypoints, colors):
-            x.append(i[0])
-            y.append(i[1])
-            plt.scatter(i[0], i[1], s=2, color=c)
+        if CHECK_PLOT:
+            x = []
+            y = []
+            colors = cm.rainbow(np.linspace(0, 1, len(waypoints)))
+            for i, c in zip(waypoints, colors):
+                x.append(i[0])
+                y.append(i[1])
+                plt.scatter(i[0], i[1], s=2, color=c)
 
-        # x2 = []
-        # y2 = []
-        # for j in coords:
-        #     x2.append(j[0])
-        #     y2.append(j[1])
-        # plt.scatter(x2, y2, s=2, color='red')
-        plt.hlines(0, -0.5, 0.5, linewidths=1)
-        plt.vlines(0, -0.5, 0.5, linewidths=1)
-        plt.show()
+            # x2 = []
+            # y2 = []
+            # for j in coords:
+            #     x2.append(j[0])
+            #     y2.append(j[1])
+            # plt.scatter(x2, y2, s=2, color='red')
+
+            plt.hlines(0, -0.5, 0.5, linewidths=1)
+            plt.vlines(0, -0.5, 0.5, linewidths=1)
+            plt.show()
+
+        np.save(f'{dest_path+filename}.npy', waypoints)
 
 
 if __name__ == "__main__":
