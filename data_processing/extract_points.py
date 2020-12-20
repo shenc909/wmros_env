@@ -195,8 +195,9 @@ def main():
     for dxf_file, filename in zip(dxf_files_dir, dxf_files):
         coords = getPolylinePoints(dxf_file)
         print(f'Extracting from {dxf_file}')
+
         # create waypoints, second arg is spacing between waypoints
-        waypoints = walker(coords, 0.1)
+        waypoints = walker(coords, 0.5)
         waypoints = startZero(waypoints)
 
         if CHECK_PLOT:
