@@ -457,7 +457,7 @@ limitations under the License.
   <!-- camera -->
   <gazebo reference="camera_link">
     <sensor type="camera" name="camera1">
-      <update_rate>10.0</update_rate>
+      <update_rate>60.0</update_rate>
       <camera name="head">
         <horizontal_fov>1.7962634</horizontal_fov>
         <image>
