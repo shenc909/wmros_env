@@ -3,7 +3,7 @@
 import rospy
 import gym
 from gym import spaces
-import gazebo_env
+from gazebo_gym import gazebo_env
 from std_srvs.srv import Empty
 from worldmodel_interface.srv import GetSingleReward, GetSingleRewardResponse
 from ackermann_msgs.msg import AckermannDrive

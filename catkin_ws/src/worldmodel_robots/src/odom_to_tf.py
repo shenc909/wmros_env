@@ -58,7 +58,7 @@ def handle_model_state(msg):
                      tfPrefix + "/" + msg.child_frame_id,
                      "world")
     except:
-        rospy.logerr_throttle(1, f'Cannot find Gazebo model state {tfPrefix}')
+        rospy.logwarn_throttle(10, f'Cannot find Gazebo model state {tfPrefix}')
 
 if __name__ == '__main__':
     rospy.init_node('odom_to_tf')

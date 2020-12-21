@@ -8,7 +8,8 @@ from std_srvs.srv import Empty
 from worldmodel_interface.srv import GetSingleReward, GetSingleRewardResponse
 import numpy as np
 
-COORD_PATH = 'gym_assets/track_coords/'
+COORD_PATH = 'gym_assets/track_coords'
+PKG_NAME = 'gazebo_gym'
 
 class RewardPublisher:
 
@@ -85,8 +86,8 @@ class RewardPublisher:
         return []
     
     def _loadWaypoints(self):
-        path = self.rospack.get_path('worldmodel_interface')
-        self.waypoints = np.load(f'{path}/src/' + COORD_PATH + f'{self.track_name}.dxf.npy')
+        path = self.rospack.get_path(PKG_NAME)
+        self.waypoints = np.load(f'{path}/src/{PKG_NAME}/{COORD_PATH}/{self.track_name}.dxf.npy')
 
 if __name__ == "__main__":
 

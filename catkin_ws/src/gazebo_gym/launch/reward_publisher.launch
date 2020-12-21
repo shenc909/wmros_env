@@ -10,7 +10,7 @@
   <group ns="$(arg namespace)">
     <remap from="/reward" to="/$(arg namespace)/reward" />
     <remap from="/done" to="/$(arg namespace)/done" />
-    <node name="reward_publisher" pkg="worldmodel_interface" type="reward_publisher.py">
+    <node name="reward_publisher" pkg="gazebo_gym" type="reward_publisher.py">
         <param name="track_name" value="$(arg track_name)" />
         <param name="namespace" value="$(arg namespace)" />
         <param name="waypoint_reward" value="$(arg waypoint_reward)" />

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from ros_gym.gazebo_racecar_env import GazeboRaceCarEnv
+from gazebo_gym.gazebo_racecar_env import GazeboRaceCarEnv
 import time
 import rospy
 import random
@@ -8,11 +8,11 @@ import math
 import cv2
 import numpy as np
 
-step_size = 1
+step_size = 0.1
 track_name = 'track5'
 speed_multiplier = 0.7
 angle_multiplier = 0.5
-steps = 100
+steps = 300
 
 def main():
     env = GazeboRaceCarEnv(step_size, track_name)
@@ -37,6 +37,7 @@ def main():
         # input("Hit enter to step env")
     # time.sleep(20)
     # input("Hit enter to close env")
+    rospy.loginfo('Environment Done')
     env._close()
     rospy.signal_shutdown('End of env')
 

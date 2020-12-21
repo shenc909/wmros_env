@@ -39,7 +39,7 @@
     <arg name="yaw" value="$(arg yaw)"/>
   </include>
 
-  <include file="$(find worldmodel_interface)/launch/reward_publisher.launch">
+  <include file="$(find gazebo_gym)/launch/reward_publisher.launch">
     <arg name="namespace" value="$(arg namespace)"/>
     <arg name="track_name" value="$(arg world_name)" />
     <arg name="waypoint_reward" value="$(arg waypoint_reward)" />
