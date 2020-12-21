@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from gazebo_racecar_env import GazeboRaceCarEnv
+from ros_gym.gazebo_racecar_env import GazeboRaceCarEnv
 import time
 import rospy
 import random
@@ -29,15 +29,16 @@ def main():
         # rospy.loginfo(state.tolist())
         if state is not None:
             rospy.loginfo(np.shape(state))
-            cv2.imshow('item', state)
-            cv2.waitKey(0)
+            # cv2.imshow('item', state)
+            # cv2.waitKey(0)
         else:
             rospy.logerr('NO STATE RECEIVED')
         print(f'Reward: {reward}')
-        input("Hit enter to step env")
+        # input("Hit enter to step env")
     # time.sleep(20)
-    input("Hit enter to close env")
+    # input("Hit enter to close env")
     env._close()
+    rospy.signal_shutdown('End of env')
 
 if __name__ == "__main__":
     try:
