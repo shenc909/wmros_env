@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 
 step_size = 0.1
-track_name = 'track5'
+track_name = 'track10'
 speed_multiplier = 0.7
 angle_multiplier = 0.5
 steps = 300
@@ -17,7 +17,7 @@ steps = 300
 def main():
     env = GazeboRaceCarEnv(step_size, track_name)
     obs = env.reset()
-    cv2.imshow('item', obs)
+    cv2.imshow('preview', obs)
     cv2.waitKey(0)
     done = False
     for i in range(steps):
@@ -30,8 +30,10 @@ def main():
         # rospy.loginfo(state.tolist())
         if state is not None:
             rospy.loginfo(np.shape(state))
-            cv2.imshow('item', state)
-            cv2.waitKey(0)
+            cv2.namedWindow('observation', cv2.WINDOW_KEEPRATIO)
+            cv2.imshow('observation', state)
+            cv2.resizeWindow('observation', 300, 300)
+            cv2.waitKey(1)
         else:
             rospy.logerr('NO STATE RECEIVED')
         print(f'Reward: {reward}')

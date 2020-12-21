@@ -7,6 +7,7 @@ from std_msgs.msg import Float64, Bool
 from std_srvs.srv import Empty
 from worldmodel_interface.srv import GetSingleReward, GetSingleRewardResponse
 import numpy as np
+from gazebo_msgs.msg import ModelStates
 
 COORD_PATH = 'gym_assets/track_coords'
 PKG_NAME = 'gazebo_gym'
@@ -19,7 +20,6 @@ class RewardPublisher:
         self.done = False
 
         rospy.init_node('car_tf_listener')
-        self.listener = tf.TransformListener()
 
         # Get parameters
         self.track_name = rospy.get_param('~track_name', "track1")
@@ -39,9 +39,11 @@ class RewardPublisher:
         # Broadcast service to get reward
         self.reward_service = rospy.Service(f'reward', GetSingleReward, self.getSingleReward)
         self.reset_service = rospy.Service(f'reward_reset', Empty, self.reset)
+
+        self.posSub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.rewardSpin)
         
 
-    def rewardSpin(self):
+    def rewardSpin(self, msg):
 
         if self.waypoint_index >= len(self.waypoints):
             self.done = True
@@ -51,9 +53,25 @@ class RewardPublisher:
         elapsed = self.curr_time - self.last_time
         self.reward += self.time_reward * elapsed
 
+        model_names = msg.name
         try:
-            position, quarternion = self.listener.lookupTransform(self.car_namespace+'/base_link', 'world', rospy.Time())
+
+            idx = -1
+            for i in range(len(model_names)):
+                # rospy.logerr_throttle_identical(1,f'{self.car_namespace}:{model_names[i]}')
+                if self.car_namespace == model_names[i]:
+                    idx = i
+                    # rospy.logwarn('FOUND')
+                    break
+
+            pose = msg.pose[idx]
+            position = [pose.position.x, pose.position.y]
+
+
+            # position, quarternion = self.listener.lookupTransform(self.car_namespace+'/base_link', 'world', rospy.Time())
             car_coordinate = np.array([position[0], position[1]])
+
+            rospy.loginfo(f'coords: {car_coordinate}')
 
             target_waypoint = self.waypoints[self.waypoint_index]
             car2point_vector = target_waypoint - car_coordinate
@@ -64,7 +82,7 @@ class RewardPublisher:
                 self.reward += self.waypoint_reward_mult * 1000/(len(self.waypoints))
                 self.waypoint_index += 1
 
-        except tf.LookupException:
+        except IndexError:
             rospy.logerr_throttle(10, f'Lookup from {self.car_namespace} to world not found')
         
         # rospy.loginfo_throttle(0.5, rospy.get_time())
@@ -95,7 +113,7 @@ if __name__ == "__main__":
 
     try:
         while not rospy.is_shutdown():
-            rp.rewardSpin()
+            rospy.spin()
 
     except rospy.ROSInterruptException:
         pass

@@ -12,6 +12,7 @@ from std_srvs.srv import Empty
 import random
 from rosgraph_msgs.msg import Clock
 import shlex
+from gazebo_gym import killer
 
 class GazeboEnv(gym.Env):
     """Superclass for all Gazebo environments.
@@ -23,17 +24,17 @@ class GazeboEnv(gym.Env):
 
         random_number = random.randint(10000, 15000)
         self.port = "11311"#str(random_number) #os.environ["ROS_PORT_SIM"]
-        # self.port_gazebo = "11345"#str(random_number+1) #os.environ["ROS_PORT_SIM"]
+        self.port_gazebo = "11345"#str(random_number+1) #os.environ["ROS_PORT_SIM"]
         # self.port = str(random_number) #os.environ["ROS_PORT_SIM"]
         # self.port_gazebo = str(random_number+1) #os.environ["ROS_PORT_SIM"]
 
-        # os.environ["ROS_MASTER_URI"] = "http://localhost:"+self.port
-        # os.environ["GAZEBO_MASTER_URI"] = "http://localhost:"+self.port_gazebo
+        os.environ["ROS_MASTER_URI"] = "http://localhost:"+self.port
+        os.environ["GAZEBO_MASTER_URI"] = "http://localhost:"+self.port_gazebo
         #
-        # self.ros_master_uri = os.environ["ROS_MASTER_URI"];
+        self.ros_master_uri = os.environ["ROS_MASTER_URI"];
 
-        # print("ROS_MASTER_URI=http://localhost:"+self.port + "\n")
-        # print("GAZEBO_MASTER_URI=http://localhost:"+self.port_gazebo + "\n")
+        print("ROS_MASTER_URI=http://localhost:"+self.port + "\n")
+        print("GAZEBO_MASTER_URI=http://localhost:"+self.port_gazebo + "\n")
 
         # self.port = os.environ.get("ROS_PORT_SIM", "11311")
         ros_path = os.path.dirname(subprocess.check_output(["which", "roscore"]))
@@ -59,7 +60,7 @@ class GazeboEnv(gym.Env):
         self.gzclient_pid = 0
 
         # Launch the simulation with the given launchfile name
-        rospy.init_node('gym', anonymous=True)
+        
 
         ################################################################################################################
         # r = rospy.Rate(1)
@@ -123,25 +124,37 @@ class GazeboEnv(gym.Env):
             self.gzclient_pid = 0
 
     def _close(self):
-
+        # rospy.signal_shutdown('Environment Closed')
         # Kill gzclient, gzserver and roscore
+
+        self._roslaunch.send_signal(signal.SIGINT)
         tmp = os.popen("ps -Af").read()
         gzclient_count = tmp.count('gzclient')
         gzserver_count = tmp.count('gzserver')
         roscore_count = tmp.count('roscore')
         rosmaster_count = tmp.count('rosmaster')
 
-        if gzclient_count > 0:
-            os.system("killall -9 gzclient")
-        if gzserver_count > 0:
-            os.system("killall -9 gzserver")
+        # if gzclient_count > 0:
+        #     os.system("killall -9 gzclient")
+        # if gzserver_count > 0:
+        #     os.system("killall -9 gzserver")
         if rosmaster_count > 0:
-            os.system("killall -9 rosmaster")
+            # os.system("killall -9 rosmaster")
+            pass
         if roscore_count > 0:
-            os.system("killall -9 roscore")
+            pass
+            # os.system("killall -9 roscore")
 
         if (gzclient_count or gzserver_count or roscore_count or rosmaster_count >0):
             os.wait()
+        
+        # while os.popen("ps -Af").read().count('rosmaster') > 0:
+        #     pass
+
+        time.sleep(5)
+
+        # rospy.core._shutdown_flag = False
+        killer.kill()
 
     def _configure(self):
 

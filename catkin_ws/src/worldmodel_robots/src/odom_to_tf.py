@@ -7,6 +7,8 @@ from tf import TransformBroadcaster
 
 from gazebo_msgs.msg import ModelStates
 
+last_time = 0
+
 def handle_car_odom(msg):
     br = TransformBroadcaster()
     # t = TransformStamped()
@@ -33,6 +35,7 @@ def handle_car_odom(msg):
     # br.sendTransform(t)
 
 def handle_model_state(msg):
+    global last_time
     br = TransformBroadcaster()
 
     model_names = msg.name
@@ -40,7 +43,10 @@ def handle_model_state(msg):
 
     try:
         # idx = model_names.index(tfPrefix)
-
+        time = rospy.Time.now()
+        if time == last_time:
+            return
+        
         idx = -1
 
         for i in range(len(model_names)):
@@ -54,10 +60,12 @@ def handle_model_state(msg):
     
         br.sendTransform((pose.position.x, pose.position.y, pose.position.z),
                      (pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w),
-                     rospy.Time.now(),
-                     tfPrefix + "/" + msg.child_frame_id,
+                     time,
+                     tfPrefix + "/" + "base_link",
                      "world")
-    except:
+
+        last_time = time
+    except IndexError:
         rospy.logwarn_throttle(10, f'Cannot find Gazebo model state {tfPrefix}')
 
 if __name__ == '__main__':
@@ -66,5 +74,8 @@ if __name__ == '__main__':
     # rospy.Subscriber('/ground_truth/state',
     #                  Odometry,
     #                  handle_car_odom)
-    rospy.Subscriber('/gazebo/model_states', ModelStates, handle_model_state)
-    rospy.spin()
+    # rospy.Subscriber('/gazebo/model_states', ModelStates, handle_model_state)
+    try:
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        print('INTERRUPTED')

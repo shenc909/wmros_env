@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
+from gazebo_gym.gazebo_racecar_env import GazeboRaceCarEnv
+
 def make_env(env_name, **kwargs):
     if env_name == 'SingleRacecar':
-        from gazebo_gym.gazebo_racecar_env import GazeboRaceCarEnv
         """
         Create a single car Gazebo Environment
 

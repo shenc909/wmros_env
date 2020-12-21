@@ -13,9 +13,18 @@ import numpy as np
 from cv_bridge import CvBridge
 import cv2
 import time
+import importlib
+
+importlib.reload(rospy)
+
 
 STATE_W = 64
 STATE_H = 64
+
+MIN_SPEED = 0
+MAX_SPEED = 1.5
+MIN_ANGLE = -np.pi/2 * 0.75
+MAX_ANGLE = np.pi/2 * 0.75
 
 class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
 
@@ -35,7 +44,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     time_reward -- reward gained per second
     """
 
-    def __init__(self, step_size=0.1, track_name='track1', waypoint_threshold=1.0, waypoint_reward_mult=1.0, time_reward=-1.0):
+    def __init__(self, step_size=0.1, track_name='track1', waypoint_threshold=1.0, waypoint_reward_mult=1.0, time_reward=-1.0, gazebo_gui=False):
         # Launch the simulation with the given launchfile name
         self.step_size = step_size
         gazebo_env.GazeboEnv.__init__(self, "GazeboRacecarEnv.launch", \
@@ -43,7 +52,9 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
                 f'world_name:={track_name}',
                 f'waypoint_threshold:={waypoint_threshold}',
                 f'waypoint_reward_mult:={waypoint_reward_mult}',
-                f'time_reward:={time_reward}'])
+                f'time_reward:={time_reward}',
+                f'gazebo_gui:={str(gazebo_gui).lower()}'])
+        rospy.init_node('gym', anonymous=True)
         self.ackermann_pub = rospy.Publisher('/ackermann_vehicle/ackermann_cmd', AckermannDrive, queue_size=5)
         self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
         self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
@@ -54,12 +65,14 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         # cv_bridge/gazebo camera plugin produces a single channel/weirdo image if there isn't at least one subscriber
         rospy.Subscriber('/ackermann_vehicle/camera1/image_raw', Image, self._camera_subscriber)
 
-        self.action_space = spaces.Box(low=np.array([-5, -np.pi/2]), high=np.array([5,np.pi/2]), shape=(2,)) #speed, steering angle
+        self.action_space = spaces.Box(low=np.array([MIN_SPEED, MIN_ANGLE]), high=np.array([MAX_SPEED,MAX_ANGLE]), shape=(2,)) #speed, steering angle
         self.reward_range = (-np.inf, np.inf)
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
         self.reward = 0
         self.bridge = CvBridge()
         self.track_name = track_name
+        
+        self.image_msg = None
 
         self._seed()
 
@@ -76,10 +89,14 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         data = None
         obs = None
         done = False
-        while data is None:
+        while data is None and not rospy.is_shutdown():
             try:
-                data = rospy.wait_for_message('/ackermann_vehicle/camera1/image_raw', Image, timeout=5)
+                # data = rospy.wait_for_message('/ackermann_vehicle/camera1/image_raw', Image, timeout=5)
+                while self.image_msg is None:
+                    rospy.logwarn_throttle(5, 'No camera updates')
+                data = self.image_msg
                 obs = self._imageMsgToCv2(data)
+                self.image_msg = None
             except:
                 rospy.logerr_throttle(1, 'No data found')
 
@@ -92,18 +109,22 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     
     def reset(self):
         self._resetGazebo()
-        rospy.loginfo('Sleeping for 10s while gazebo loads')
-        time.sleep(5)
+        rospy.loginfo('Sleeping for 3s while gazebo loads')
+        time.sleep(3)
 
         self._resumeGazebo()
 
         #read camera data
         data = None
         obs = None
-        while data is None:
+        while data is None and not rospy.is_shutdown():
             try:
-                data = rospy.wait_for_message('/ackermann_vehicle/camera1/image_raw', Image, timeout=10)
+                # data = rospy.wait_for_message('/ackermann_vehicle/camera1/image_raw', Image, timeout=10)
+                while self.image_msg is None:
+                    rospy.logwarn_throttle(5, 'No camera updates')
+                data = self.image_msg
                 obs = self._imageMsgToCv2(data)
+                self.image_msg = None
             except rospy.ROSException:
                 rospy.logfatal('Cannot establish camera image (check tf tree?)')
 
@@ -169,4 +190,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
             print("/ackermann_vehicle/reward_reset call failed")
     
     def _camera_subscriber(self,msg):
-        pass
+        self.image_msg = msg
+
+    def __del__(self):
+        print('Being destroyed rn')

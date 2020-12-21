@@ -489,4 +489,8 @@ def _get_steer_ang(phi):
 # main
 if __name__ == "__main__":
     ctrlr = _AckermannCtrlr()
-    ctrlr.spin()
+    try:
+        ctrlr.spin()
+
+    except rospy.ROSInterruptException:
+        pass

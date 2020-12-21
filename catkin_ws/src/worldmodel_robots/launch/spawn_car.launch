@@ -40,10 +40,10 @@
       <rosparam file="$(find worldmodel_robots)/config/em_3905_ackermann_ctrlr_params.yaml" command="load"/>
     </node>
 
-    <remap from="/ground_truth/state" to="/$(arg namespace)/ground_truth/state"/>
+    <!-- <remap from="/ground_truth/state" to="/$(arg namespace)/ground_truth/state"/>
     <node name="odom_to_tf" pkg="worldmodel_robots" type="odom_to_tf.py">
       <param name="tf_prefix" value="$(arg namespace)"/>
-    </node>
+    </node> -->
 
   </group>
 
