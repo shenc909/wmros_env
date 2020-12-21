@@ -24,7 +24,7 @@ class RewardPublisher:
         # Get parameters
         self.track_name = rospy.get_param('~track_name', "track1")
         self.car_namespace = rospy.get_param('~namespace', '/ackermann_vehicle')
-        self.waypoint_reward = rospy.get_param('~waypoint_reward', 10)
+        self.waypoint_reward_mult = rospy.get_param('~waypoint_reward_mult', 10)
         self.time_reward = rospy.get_param('~time_reward', -1)
         self.threshold_distance = rospy.get_param('~threshold_distance', 1)
         self.rospack = rospkg.RosPack()
@@ -32,7 +32,7 @@ class RewardPublisher:
         # Get time for tme reward calc
         self.last_time = rospy.get_time()
 
-        rospy.loginfo(f'{self.track_name}, NS: {self.car_namespace}, wpr:{self.waypoint_reward}, tr:{self.time_reward}, thresh:{self.threshold_distance}')
+        rospy.loginfo(f'{self.track_name}, NS: {self.car_namespace}, wpr:{self.waypoint_reward_mult}, tr:{self.time_reward}, thresh:{self.threshold_distance}')
 
         # Load waypoints for track
         self._loadWaypoints()
@@ -61,7 +61,7 @@ class RewardPublisher:
             dist = np.linalg.norm(car2point_vector)
 
             if dist < self.threshold_distance:
-                self.reward += self.waypoint_reward
+                self.reward += self.waypoint_reward_mult * 1000/(len(self.waypoints))
                 self.waypoint_index += 1
 
         except tf.LookupException:

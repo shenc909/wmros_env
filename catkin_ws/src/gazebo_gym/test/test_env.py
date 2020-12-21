@@ -16,8 +16,9 @@ steps = 300
 
 def main():
     env = GazeboRaceCarEnv(step_size, track_name)
-    env.reset()
-    env._render()
+    obs = env.reset()
+    cv2.imshow('item', obs)
+    cv2.waitKey(0)
     done = False
     for i in range(steps):
         # steering_angle = (random.random() - 0.5) * angle_multiplier * math.pi
@@ -29,8 +30,8 @@ def main():
         # rospy.loginfo(state.tolist())
         if state is not None:
             rospy.loginfo(np.shape(state))
-            # cv2.imshow('item', state)
-            # cv2.waitKey(0)
+            cv2.imshow('item', state)
+            cv2.waitKey(0)
         else:
             rospy.logerr('NO STATE RECEIVED')
         print(f'Reward: {reward}')

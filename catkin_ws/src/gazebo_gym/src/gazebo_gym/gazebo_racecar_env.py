@@ -12,6 +12,7 @@ from gym.utils import seeding
 import numpy as np
 from cv_bridge import CvBridge
 import cv2
+import time
 
 STATE_W = 64
 STATE_H = 64
@@ -29,19 +30,19 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
 
     waypoint_threshold -- distance (in meters) before waypoint is considered reached
 
-    waypoint_reward -- reward gained per waypoint
+    waypoint_reward_mult -- reward gained per waypoint multiplier (1000/N, N is number of waypoints)
 
     time_reward -- reward gained per second
     """
 
-    def __init__(self, step_size=0.1, track_name='track1', waypoint_threshold=1.0, waypoint_reward=10.0, time_reward=-1.0):
+    def __init__(self, step_size=0.1, track_name='track1', waypoint_threshold=1.0, waypoint_reward_mult=1.0, time_reward=-1.0):
         # Launch the simulation with the given launchfile name
         self.step_size = step_size
         gazebo_env.GazeboEnv.__init__(self, "GazeboRacecarEnv.launch", \
             launch_args=[\
                 f'world_name:={track_name}',
                 f'waypoint_threshold:={waypoint_threshold}',
-                f'waypoint_reward:={waypoint_reward}',
+                f'waypoint_reward_mult:={waypoint_reward_mult}',
                 f'time_reward:={time_reward}'])
         self.ackermann_pub = rospy.Publisher('/ackermann_vehicle/ackermann_cmd', AckermannDrive, queue_size=5)
         self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
@@ -91,6 +92,8 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     
     def reset(self):
         self._resetGazebo()
+        rospy.loginfo('Sleeping for 10s while gazebo loads')
+        time.sleep(5)
 
         self._resumeGazebo()
 
@@ -107,6 +110,8 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         self._pauseGazebo()
 
         state = obs
+
+        # state, _, _, _ = self.step([0,0])
         self.reward = 0
         self._resetReward()
 

@@ -3,7 +3,7 @@
 <launch>
   <arg name="namespace" default="ackermann_vehicle"/>
   <arg name="track_name" default="track1" />
-  <arg name="waypoint_reward" default="5.0" />
+  <arg name="waypoint_reward_mult" default="1.0" />
   <arg name="time_reward" default="-0.5" />
   <arg name="threshold_distance" default="1.5" />
 
@@ -13,7 +13,7 @@
     <node name="reward_publisher" pkg="gazebo_gym" type="reward_publisher.py">
         <param name="track_name" value="$(arg track_name)" />
         <param name="namespace" value="$(arg namespace)" />
-        <param name="waypoint_reward" value="$(arg waypoint_reward)" />
+        <param name="waypoint_reward_mult" value="$(arg waypoint_reward_mult)" />
         <param name="time_reward" value="$(arg time_reward)" />
         <param name="threshold_distance" value="$(arg threshold_distance)" />
     </node>

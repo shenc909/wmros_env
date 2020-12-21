@@ -63,8 +63,8 @@ def handle_model_state(msg):
 if __name__ == '__main__':
     rospy.init_node('odom_to_tf')
     tfPrefix = rospy.get_param("~tf_prefix")
-    rospy.Subscriber('/ground_truth/state',
-                     Odometry,
-                     handle_car_odom)
+    # rospy.Subscriber('/ground_truth/state',
+    #                  Odometry,
+    #                  handle_car_odom)
     rospy.Subscriber('/gazebo/model_states', ModelStates, handle_model_state)
     rospy.spin()
