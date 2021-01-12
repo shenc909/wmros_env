@@ -65,7 +65,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         # cv_bridge/gazebo camera plugin produces a single channel/weirdo image if there isn't at least one subscriber
         rospy.Subscriber('/ackermann_vehicle/camera1/image_raw', Image, self._camera_subscriber)
 
-        self.action_space = spaces.Box(low=np.array([MIN_SPEED, MIN_ANGLE]), high=np.array([MAX_SPEED,MAX_ANGLE]), shape=(2,)) #speed, steering angle
+        self.action_space = spaces.Box(low=np.array([0, -1]), high=np.array([1,1]), shape=(2,)) #speed, steering angle
         self.reward_range = (-np.inf, np.inf)
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
         self.reward = 0
@@ -80,8 +80,8 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         self._resumeGazebo()
 
         ackermann_cmd = AckermannDrive()
-        ackermann_cmd.speed = action[0]
-        ackermann_cmd.steering_angle = action[1]
+        ackermann_cmd.speed = action[0] * (MAX_SPEED - MIN_SPEED)
+        ackermann_cmd.steering_angle = action[1] * MAX_ANGLE
         self.ackermann_pub.publish(ackermann_cmd)
 
         rospy.sleep(self.step_size)

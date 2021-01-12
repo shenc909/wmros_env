@@ -15,71 +15,69 @@ TIME_PENALTY = -0.1
 def main(args):
 
     env_name = args.env_name
-    total_episodes = args.total_episodes
     time_steps = args.time_steps
     render = args.render
     action_refresh_rate = args.action_refresh_rate
 
     episode_num = 0
 
-    while episode_num < total_episodes:
-        episode_id = random.randint(0, 2**31 - 1)
-        filename = DIR_NAME + str(episode_id) + ".npz"
-        track_name = 'track'+str(random.randint(1,20))
+    episode_id = random.randint(0, 2**31 - 1)
+    filename = DIR_NAME + str(episode_id) + ".npz"
+    track_name = 'track'+str(random.randint(1,20))
 
-        env = make_env('SingleRacecar', track_name=track_name, waypoint_reward_mult=WAYPOINT_REWARD_MULTIPLIER, time_reward=TIME_PENALTY, gazebo_gui=True)
+    env = make_env('SingleRacecar', track_name=track_name, waypoint_reward_mult=WAYPOINT_REWARD_MULTIPLIER, time_reward=TIME_PENALTY, gazebo_gui=True, step_size=0.02)
 
-        # if render:
-        #     env._render()
+    # if render:
+    #     env._render()
 
-        observation = env.reset()
+    observation = env.reset()
 
-        obs_sequence = []
-        action_sequence = []
-        reward_sequence = []
-        done_sequence = []
+    obs_sequence = []
+    action_sequence = []
+    reward_sequence = []
+    done_sequence = []
 
-        reward = -0.1
-        done = False
+    reward = -0.1
+    done = False
 
-        time_step_num = 0
+    time_step_num = 0
 
-        input('Paused, waiting for keyboard input')
+    # input('Paused, waiting for keyboard input')
 
-        while time_step_num < time_steps:
-            
-            if time_step_num % action_refresh_rate == 0:
-                action = env.action_space.sample()
-                print(action)
-            
-            obs_sequence.append(observation)
-            action_sequence.append(action)
-            reward_sequence.append(reward)
-            done_sequence.append(done)
-            
-            observation, reward, done, debug_dict = env.step(action)
-            print(reward)
-
-            if render:
-                renderView(observation)
-            
-            time_step_num += 1
+    while time_step_num < time_steps:
         
+        if time_step_num % action_refresh_rate == 0:
+            action = env.action_space.sample()
+            print(action)
+        
+        obs_sequence.append(observation)
+        action_sequence.append(action)
+        reward_sequence.append(reward)
+        done_sequence.append(done)
+        
+        observation, reward, done, debug_dict = env.step(action)
+        print(reward)
+
         if render:
-            cv2.destroyAllWindows()
-
-        print("Episode {} finished after {} timesteps".format(episode_num, time_step_num))
-
-        np.savez_compressed(filename, obs=obs_sequence, action=action_sequence,
-                            reward=reward_sequence, done=done_sequence)
+            renderView(observation)
         
-        env._close()
+        time_step_num += 1
+    
+    if render:
+        cv2.destroyAllWindows()
 
-        env = None
+    print("Episode {} finished after {} timesteps".format(episode_num, time_step_num))
 
-        episode_num += 1
-        # print('Sleeping for 10s')
-        # time.sleep(10)
+    np.savez_compressed(filename, obs=obs_sequence, action=action_sequence,
+                        reward=reward_sequence, done=done_sequence)
+    
+    env._close()
+
+    env = None
+
+    episode_num += 1
+    # print('Sleeping for 10s')
+    # time.sleep(10)
 
 def renderView(obs):
     cv2.namedWindow('observation', cv2.WINDOW_KEEPRATIO)
@@ -90,8 +88,6 @@ def renderView(obs):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=('Create new training data'))
     parser.add_argument('env_name', type=str, help='name of environment')
-    parser.add_argument('--total_episodes', type=int, default=1,
-                        help='total number of episodes to generate per worker')
     parser.add_argument('--time_steps', type=int, default=100,
                         help='how many timesteps at start of episode?')
     parser.add_argument('--render', default=0, type=int,
