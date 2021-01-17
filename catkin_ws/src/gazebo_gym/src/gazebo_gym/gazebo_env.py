@@ -2,7 +2,7 @@
 
 import gym
 import rospy
-#import roslaunch
+import roslaunch
 import sys
 import os
 import signal
@@ -53,8 +53,14 @@ class GazeboEnv(gym.Env):
             fullpath = os.path.join(os.path.dirname(__file__), "gym_assets", "launch", launchfile)
         if not os.path.exists(fullpath):
             raise IOError("File "+fullpath+" does not exist")
-
-        self._roslaunch = subprocess.Popen([sys.executable, os.path.join(ros_path, b"roslaunch"), "-p", self.port, fullpath] + launch_args)
+        
+        self._uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+        self._cli_args = [fullpath] + launch_args
+        self._roslaunch_args = launch_args
+        self._roslaunch_file = [(roslaunch.rlutil.resolve_launch_arguments(self._cli_args)[0], self._roslaunch_args)]
+        self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, self._roslaunch_file)
+        # self._roslaunch = subprocess.Popen([sys.executable, os.path.join(ros_path, b"roslaunch"), "-p", self.port, fullpath] + launch_args)
+        self._roslaunch_parent.start()
         print ("Gazebo launched!")
 
         self.gzclient_pid = 0
@@ -108,7 +114,7 @@ class GazeboEnv(gym.Env):
             proccount = tmp.count('gzclient')
             if proccount > 0:
                 if self.gzclient_pid != 0:
-                    os.kill(self.gzclient_pid, signal.SIGTERM)
+                    os.kill(self.gzclient_pid, signal.SIGKILL)
                     os.wait()
             return
 
@@ -127,34 +133,43 @@ class GazeboEnv(gym.Env):
         # rospy.signal_shutdown('Environment Closed')
         # Kill gzclient, gzserver and roscore
 
-        self._roslaunch.send_signal(signal.SIGINT)
-        tmp = os.popen("ps -Af").read()
-        gzclient_count = tmp.count('gzclient')
-        gzserver_count = tmp.count('gzserver')
-        roscore_count = tmp.count('roscore')
-        rosmaster_count = tmp.count('rosmaster')
+        # self._roslaunch.send_signal(signal.SIGINT)
+        self._roslaunch_parent.shutdown()
+        # tmp = os.popen("ps -Af").read()
+        # gzclient_count = tmp.count('gzclient')
+        # gzserver_count = tmp.count('gzserver')
+        # roscore_count = tmp.count('roscore')
+        # rosmaster_count = tmp.count('rosmaster')
 
         # if gzclient_count > 0:
         #     os.system("killall -9 gzclient")
         # if gzserver_count > 0:
         #     os.system("killall -9 gzserver")
-        if rosmaster_count > 0:
-            # os.system("killall -9 rosmaster")
-            pass
-        if roscore_count > 0:
-            pass
-            # os.system("killall -9 roscore")
+        
+        # if rosmaster_count > 0:
+        #     # os.system("killall -9 rosmaster")
+        #     pass
+        # if roscore_count > 0:
+        #     pass
+        #     # os.system("killall -9 roscore")
 
-        if (gzclient_count or gzserver_count or roscore_count or rosmaster_count >0):
-            os.wait()
+        # if (gzclient_count or gzserver_count or roscore_count or rosmaster_count >0):
+        #     os.wait()
         
         # while os.popen("ps -Af").read().count('rosmaster') > 0:
         #     pass
 
         time.sleep(5)
 
-        # rospy.core._shutdown_flag = False
-        killer.kill()
+        # rospy.signal_shutdown('env closed')
+
+        # rospy.core._shutdown_flag = False #dont use
+        
+        killer.kill() #uncomment when reverting
+
+        print("killer finished running")
+        # while True:
+        #     pass
 
     def _configure(self):
 

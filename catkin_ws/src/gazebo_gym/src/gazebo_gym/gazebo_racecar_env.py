@@ -93,7 +93,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
             try:
                 # data = rospy.wait_for_message('/ackermann_vehicle/camera1/image_raw', Image, timeout=5)
                 while self.image_msg is None:
-                    rospy.logwarn_throttle(5, 'No camera updates')
+                    rospy.logwarn_throttle(5, 'No camera updates in step')
                 data = self.image_msg
                 obs = self._imageMsgToCv2(data)
                 self.image_msg = None
@@ -121,7 +121,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
             try:
                 # data = rospy.wait_for_message('/ackermann_vehicle/camera1/image_raw', Image, timeout=10)
                 while self.image_msg is None:
-                    rospy.logwarn_throttle(5, 'No camera updates')
+                    rospy.logwarn_throttle(5, 'No camera updates in reset')
                 data = self.image_msg
                 obs = self._imageMsgToCv2(data)
                 self.image_msg = None

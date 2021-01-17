@@ -9,9 +9,9 @@ timeout_after_kill = 1.0  # [s]
 
 def kill():
     time.sleep(timeout_before_kill)
-    subprocess.call("killall -q gzclient & killall -q gzserver", shell=True)
+    subprocess.run("killall -q gzclient & killall -q gzserver", shell=True)
     time.sleep(timeout_after_kill)
-    subprocess.call("killall -9 -q gzclient & killall -9 -q gzserver", shell=True)
+    subprocess.run("killall -9 -q gzclient & killall -9 -q gzserver", shell=True)
     # sys.exit(0)
 
 

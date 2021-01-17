@@ -8,7 +8,7 @@ import math
 import cv2
 import numpy as np
 
-step_size = 0.1
+step_size = 0.01
 track_name = 'track10'
 speed_multiplier = 0.7
 angle_multiplier = 0.5
@@ -40,12 +40,14 @@ def main():
         # input("Hit enter to step env")
     # time.sleep(20)
     # input("Hit enter to close env")
+    cv2.destroyAllWindows()
     rospy.loginfo('Environment Done')
     env._close()
-    rospy.signal_shutdown('End of env')
+    # rospy.signal_shutdown('End of env')
 
 if __name__ == "__main__":
     try:
-        main()
+        for i in range(2):
+            main()
     except KeyboardInterrupt:
         rospy.signal_shutdown("Keyboard Interrupted")
