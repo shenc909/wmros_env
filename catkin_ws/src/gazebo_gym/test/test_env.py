@@ -19,6 +19,7 @@ def main():
 
     for i in range(2):
         obs = env.reset()
+        obs = cv2.cvtColor(obs, cv2.COLOR_RGB2BGR)
         cv2.imshow('preview', obs)
         cv2.waitKey(0)
         done = False
@@ -33,6 +34,7 @@ def main():
             if state is not None:
                 rospy.loginfo(np.shape(state))
                 cv2.namedWindow('observation', cv2.WINDOW_KEEPRATIO)
+                state = cv2.cvtColor(state, cv2.COLOR_RGB2BGR)
                 cv2.imshow('observation', state)
                 cv2.resizeWindow('observation', 300, 300)
                 cv2.waitKey(1)

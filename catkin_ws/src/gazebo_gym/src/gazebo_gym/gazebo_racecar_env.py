@@ -85,7 +85,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
 
         self.action_space = spaces.Box(low=np.array([0, -1]), high=np.array([1,1]), shape=(2,)) #speed, steering angle
         self.reward_range = (-np.inf, np.inf)
-        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
+        self.observation_space = spaces.Box(low=0.0, high=1.0, shape=(STATE_H, STATE_W, 3), dtype=np.float32)
         self.reward = 0
         self.bridge = CvBridge()
         self.track_name = track_name
@@ -114,6 +114,8 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
                     rospy.logwarn_throttle(5, 'No camera updates in step')
                 data = self.image_msg
                 obs = self._imageMsgToCv2(data)
+                obs = cv2.cvtColor(obs, cv2.COLOR_BGR2RGB)
+                obs = np.float32(obs) / 255
                 self.image_msg = None
             except:
                 rospy.logerr_throttle(1, 'No data found')
@@ -161,6 +163,8 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
                     rospy.logwarn_throttle(5, 'No camera updates in reset')
                 data = self.image_msg
                 obs = self._imageMsgToCv2(data)
+                obs = cv2.cvtColor(obs, cv2.COLOR_BGR2RGB)
+                obs = np.float32(obs) / 255
                 self.image_msg = None
             except rospy.ROSException:
                 rospy.logfatal('Cannot establish camera image (check tf tree?)')
