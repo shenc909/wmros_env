@@ -9,13 +9,13 @@ import cv2
 import numpy as np
 
 step_size = 0.01
-track_name = 'track10'
+# track_name = 'track10'
 speed_multiplier = 0.7
 angle_multiplier = 0.5
 steps = 300
 
 def main():
-    env = GazeboRaceCarEnv(step_size, track_name)
+    env = GazeboRaceCarEnv(step_size)
 
     for i in range(2):
         obs = env.reset()

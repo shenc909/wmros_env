@@ -2,6 +2,7 @@
 
 import rospy
 import roslaunch
+import rospkg
 import gym
 from gym import spaces
 from gazebo_gym import gazebo_env
@@ -48,6 +49,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     def __init__(self, step_size=0.1, track_name='track1', waypoint_threshold=1.0, waypoint_reward_mult=1.0, time_reward=-1.0, gazebo_gui=False):
         # Launch the simulation with the given launchfile name
         self.step_size = step_size
+        # self.rospack = rospkg.RosPack()
         gazebo_env.GazeboEnv.__init__(self, "GazeboRacecarEnv.launch", \
             # launch_args=[\
             #     f'world_name:={track_name}',
@@ -57,7 +59,8 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
             #     f'gazebo_gui:={str(gazebo_gui).lower()}']
             )
 
-        self._general_args = [f'world_name:={track_name}']
+        # track_name = self._random_track_world()
+        # self._general_args = [f'world_name:={track_name}']
         self._world_loader_args = [f'gazebo_gui:={str(gazebo_gui).lower()}']
         self._support_publishers_args = [\
             f'waypoint_threshold:={waypoint_threshold}',
@@ -132,7 +135,10 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
             print('Stopping Support Publishers')
             self._support_publishers_parent.shutdown()
         except AttributeError:
-            print('No running worlds, will not kill')
+            rospy.logwarn('Cannot kill nonexistent launchers, skipping...')
+
+        track_name = self._random_track_world()
+        self._general_args = [f'world_name:={track_name}']
 
         print('Starting env launchers')
         self._load_world(self._general_args, self._world_loader_args)
@@ -265,3 +271,8 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         self._support_publishers_parent = roslaunch.parent.ROSLaunchParent(self._support_publishers_uuid, roslaunch_files=roslaunch_file)
         self._support_publishers_parent.start()
         print('Support Publishers Started')
+    
+    def _random_track_world(self):
+        rand_int = self.np_random.randint(1, 21)
+        track_name = 'track' + str(rand_int)
+        return track_name
