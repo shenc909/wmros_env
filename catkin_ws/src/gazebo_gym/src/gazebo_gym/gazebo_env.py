@@ -58,10 +58,10 @@ class GazeboEnv(gym.Env):
         self._cli_args = [fullpath] + launch_args
         self._roslaunch_args = launch_args
         self._roslaunch_file = [(roslaunch.rlutil.resolve_launch_arguments(self._cli_args)[0], self._roslaunch_args)]
-        self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, self._roslaunch_file)
+        self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, roslaunch_files=[], is_core=True)
         # self._roslaunch = subprocess.Popen([sys.executable, os.path.join(ros_path, b"roslaunch"), "-p", self.port, fullpath] + launch_args)
         self._roslaunch_parent.start()
-        print ("Gazebo launched!")
+        # print ("Gazebo launched!")
 
         self.gzclient_pid = 0
 
@@ -182,3 +182,14 @@ class GazeboEnv(gym.Env):
         # TODO
         # From OpenAI API: Sets the seed for this env's random number generator(s)
         pass
+
+    def get_fullpath(self, launchfile):
+        
+        if launchfile.startswith("/"):
+            fullpath = launchfile
+        else:
+            fullpath = os.path.join(os.path.dirname(__file__), "gym_assets", "launch", launchfile)
+        if not os.path.exists(fullpath):
+            raise IOError("File "+fullpath+" does not exist")
+        
+        return fullpath
