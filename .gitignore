@@ -53,3 +53,4 @@ CATKIN_IGNORE
 .vscode/c_cpp_properties.json
 src/.vscode
 *.bag
+*.npz
