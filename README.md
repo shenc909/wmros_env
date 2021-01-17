@@ -1,5 +1,4 @@
 # wmros_env
- World Models ROS related packages
+World Models ROS related packages
 
-Install ROS Melodic Morena for Ubuntu 18.04
-
+Install ROS Noetic for Ubuntu 20.04
