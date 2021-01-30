@@ -37,8 +37,6 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
 
     step_size -- time (in seconds) between steps
 
-    track_name -- name of track to load
-
     waypoint_threshold -- distance (in meters) before waypoint is considered reached
 
     waypoint_reward_mult -- reward gained per waypoint multiplier (1000/N, N is number of waypoints)
@@ -46,7 +44,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     time_reward -- reward gained per second
     """
 
-    def __init__(self, step_size=0.1, track_name='track1', waypoint_threshold=1.0, waypoint_reward_mult=1.0, time_reward=-1.0, gazebo_gui=False):
+    def __init__(self, step_size=0.1, waypoint_threshold=1.0, waypoint_reward_mult=1.0, time_reward=-1.0, gazebo_gui=False):
         # Launch the simulation with the given launchfile name
         self.step_size = step_size
         # self.rospack = rospkg.RosPack()
@@ -88,7 +86,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         self.observation_space = spaces.Box(low=0.0, high=1.0, shape=(STATE_H, STATE_W, 3), dtype=np.float32)
         self.reward = 0
         self.bridge = CvBridge()
-        self.track_name = track_name
+        # self.track_name = track_name
         
         self.image_msg = None
 
