@@ -2,7 +2,7 @@
 
 from gazebo_gym.gazebo_racecar_env import GazeboRaceCarEnv
 
-def make_env(env_name, **kwargs):
+def make_env(env_name, seed=-1, model=None, render_mode=False, **kwargs):
     if env_name == 'single_racecar':
         """
         Create a single car Gazebo Environment
@@ -18,9 +18,12 @@ def make_env(env_name, **kwargs):
         time_reward -- reward gained per second
         """
         env = GazeboRaceCarEnv(**kwargs)
+        if (seed >= 0):
+            env.seed(seed)
+        
         return env
     else:
         raise NameError(f'{env_name} environment does not exist')
 
 if __name__ == "__main__":
-    make_env('SingleRacecar')
+    make_env('single_racecar')

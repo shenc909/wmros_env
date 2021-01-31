@@ -15,7 +15,7 @@ PKG_NAME = 'gazebo_gym'
 class RewardPublisher:
 
     def __init__(self):
-        self.waypoint_index = 0
+        # self.waypoint_index = 0
         self.reward = 0
         self.done = False
 
@@ -36,6 +36,7 @@ class RewardPublisher:
 
         # Load waypoints for track
         self._loadWaypoints()
+        self.waypoint_check = np.full(len(self.waypoints), False)
         # Broadcast service to get reward
         self.reward_service = rospy.Service(f'reward', GetSingleReward, self.getSingleReward)
         self.reset_service = rospy.Service(f'reward_reset', Empty, self.reset)
@@ -45,9 +46,9 @@ class RewardPublisher:
 
     def rewardSpin(self, msg):
 
-        if self.waypoint_index >= len(self.waypoints):
-            self.done = True
-            return
+        # if self.waypoint_index >= len(self.waypoints):
+        #     self.done = True
+        #     return
         
         self.curr_time = rospy.get_time()
         elapsed = self.curr_time - self.last_time
@@ -73,14 +74,21 @@ class RewardPublisher:
 
             rospy.loginfo(f'coords: {car_coordinate}')
 
-            target_waypoint = self.waypoints[self.waypoint_index]
-            car2point_vector = target_waypoint - car_coordinate
+            for idx, target_waypoint in zip(range(len(self.waypoints)), self.waypoints):
+            # target_waypoint = self.waypoints[self.waypoint_index]
+                car2point_vector = target_waypoint - car_coordinate
 
-            dist = np.linalg.norm(car2point_vector)
+                dist = np.linalg.norm(car2point_vector)
 
-            if dist < self.threshold_distance:
-                self.reward += self.waypoint_reward_mult * 1000/(len(self.waypoints))
-                self.waypoint_index += 1
+                if dist < self.threshold_distance:
+                    if self.waypoint_check[idx] == False:
+                        self.reward += self.waypoint_reward_mult * 1000/(len(self.waypoints))
+                        # self.waypoint_index += 1
+                        self.waypoint_check[idx] = True
+            
+            if all(self.waypoint_check):
+                self.done = True
+                return
 
         except IndexError:
             rospy.logerr_throttle(10, f'Lookup from {self.car_namespace} to world not found')
@@ -98,7 +106,8 @@ class RewardPublisher:
         return response_dict
     
     def reset(self, req):
-        self.waypoint_index = 0
+        # self.waypoint_index = 0
+        self.waypoint_check = np.full(len(self.waypoints), False)
         self.reward = 0
         self.last_time = rospy.get_time()
         return []

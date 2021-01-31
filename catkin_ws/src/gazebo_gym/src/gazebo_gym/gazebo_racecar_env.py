@@ -278,3 +278,6 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         rand_int = self.np_random.randint(1, 21)
         track_name = 'track' + str(rand_int)
         return track_name
+    
+    def seed(self, seed=None):
+        self._seed(seed)
