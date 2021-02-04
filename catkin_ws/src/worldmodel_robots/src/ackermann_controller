@@ -185,7 +185,8 @@ class _AckermannCtrlr(object):
                 _wait_for_ctrlr(list_ctrlrs, ctrlr_name)
                 pub.publish(eq_pos)
                 self._shock_pubs.append(pub)
-        except:
+        except Exception as e:
+            rospy.logerr(e)
             rospy.logwarn("The specified list of shock absorbers is invalid. "
                           "No shock absorbers will be used.")
 
@@ -277,25 +278,28 @@ class _AckermannCtrlr(object):
         while not rospy.is_shutdown():
             t = rospy.get_time()
             delta_t = t - last_time
+
+            if delta_t < 0:
+                rospy.logerr('ackermann_ctrl neg delta_t')
             last_time = t
 
-            if (self._cmd_timeout > 0.0 and
-                t - self._last_cmd_time > self._cmd_timeout):
-                # Too much time has elapsed since the last command. Stop the
-                # vehicle.
-                steer_ang_changed, center_y = \
-                    self._ctrl_steering(self._last_steer_ang, 0.0, 0.001)
-                self._ctrl_axles(0.0, 0.0, 0.0, steer_ang_changed, center_y)
-            elif delta_t > 0.0:
-                with self._ackermann_cmd_lock:
-                    steer_ang = self._steer_ang
-                    steer_ang_vel = self._steer_ang_vel
-                    speed = self._speed
-                    accel = self._accel
-                steer_ang_changed, center_y = \
-                    self._ctrl_steering(steer_ang, steer_ang_vel, delta_t)
-                self._ctrl_axles(speed, accel, delta_t, steer_ang_changed,
-                                 center_y)
+            # if (self._cmd_timeout > 0.0 and
+            #     t - self._last_cmd_time > self._cmd_timeout):
+            #     # Too much time has elapsed since the last command. Stop the
+            #     # vehicle.
+            #     steer_ang_changed, center_y = \
+            #         self._ctrl_steering(self._last_steer_ang, 0.0, 0.001)
+            #     self._ctrl_axles(0.0, 0.0, 0.0, steer_ang_changed, center_y)
+            # elif delta_t > 0.0:
+            with self._ackermann_cmd_lock:
+                steer_ang = self._steer_ang
+                steer_ang_vel = self._steer_ang_vel
+                speed = self._speed
+                accel = self._accel
+            steer_ang_changed, center_y = \
+                self._ctrl_steering(steer_ang, steer_ang_vel, delta_t)
+            self._ctrl_axles(speed, accel, delta_t, steer_ang_changed,
+                                center_y)
 
             # Publish the steering and axle joint commands.
             self._left_steer_cmd_pub.publish(self._theta_left)
@@ -463,7 +467,7 @@ def _wait_for_ctrlr(list_ctrlrs, ctrlr_name):
                 if ctrlr.state == "running":
                     return
                 rospy.sleep(0.1)
-                break
+                # break
 
 
 def _create_axle_cmd_pub(list_ctrlrs, axle_ctrlr_name):
@@ -489,8 +493,9 @@ def _get_steer_ang(phi):
 # main
 if __name__ == "__main__":
     ctrlr = _AckermannCtrlr()
-    try:
-        ctrlr.spin()
+    # try:
+    ctrlr.spin()
 
-    except rospy.ROSInterruptException:
-        pass
+    # except rospy.ROSInterruptException:
+    #     rospy.logwarn('AckermannCtrl ROSInterruptException')
+    #     exit()

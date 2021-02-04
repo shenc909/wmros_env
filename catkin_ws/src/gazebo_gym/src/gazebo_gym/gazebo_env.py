@@ -58,7 +58,7 @@ class GazeboEnv(gym.Env):
         self._cli_args = [fullpath] + launch_args
         self._roslaunch_args = launch_args
         self._roslaunch_file = [(roslaunch.rlutil.resolve_launch_arguments(self._cli_args)[0], self._roslaunch_args)]
-        self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, roslaunch_files=[], is_core=True)
+        self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, roslaunch_files=[], is_core=True, show_summary=False)
         # self._roslaunch = subprocess.Popen([sys.executable, os.path.join(ros_path, b"roslaunch"), "-p", self.port, fullpath] + launch_args)
         self._roslaunch_parent.start()
         # print ("Gazebo launched!")
@@ -167,7 +167,7 @@ class GazeboEnv(gym.Env):
         
         # killer.kill() #uncomment when reverting
 
-        print("killer finished running")
+        # print("killer finished running")
         # while True:
         #     pass
 

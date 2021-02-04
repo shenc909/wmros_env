@@ -85,6 +85,7 @@ class RewardPublisher:
                         self.reward += self.waypoint_reward_mult * 1000/(len(self.waypoints))
                         # self.waypoint_index += 1
                         self.waypoint_check[idx] = True
+                        break
             
             if all(self.waypoint_check):
                 self.done = True
@@ -125,4 +126,4 @@ if __name__ == "__main__":
             rospy.spin()
 
     except rospy.ROSInterruptException:
-        pass
+        exit()

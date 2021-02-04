@@ -16,6 +16,7 @@ from cv_bridge import CvBridge
 import cv2
 import time
 import importlib
+from controller_manager_msgs.srv import ListControllers
 
 importlib.reload(rospy)
 
@@ -24,7 +25,7 @@ STATE_W = 64
 STATE_H = 64
 
 MIN_SPEED = 0
-MAX_SPEED = 1.5
+MAX_SPEED = 3
 MIN_ANGLE = -np.pi/2 * 0.75
 MAX_ANGLE = np.pi/2 * 0.75
 
@@ -71,15 +72,17 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         # self._start_support_publishers(self._general_args, self._support_publishers_args)
 
         rospy.init_node('gym', anonymous=True)
-        self.ackermann_pub = rospy.Publisher('/ackermann_vehicle/ackermann_cmd', AckermannDrive, queue_size=5)
-        self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
+        self.ackermann_pub = rospy.Publisher('/ackermann_vehicle/ackermann_cmd', AckermannDrive, queue_size=1)
+        self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty, persistent=True)
+        self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty, persistent=True)
         self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
-        self.reward_proxy = rospy.ServiceProxy('/ackermann_vehicle/reward', GetSingleReward)
+        self.reward_proxy = rospy.ServiceProxy('/ackermann_vehicle/reward', GetSingleReward, persistent=True)
         self.reward_reset_proxy = rospy.ServiceProxy('/ackermann_vehicle/reward_reset', Empty)
 
+        self.list_ctrlrs = rospy.ServiceProxy("/ackermann_vehicle/controller_manager/list_controllers", ListControllers)
+
         # cv_bridge/gazebo camera plugin produces a single channel/weirdo image if there isn't at least one subscriber
-        rospy.Subscriber('/ackermann_vehicle/camera1/image_raw', Image, self._camera_subscriber)
+        rospy.Subscriber('/ackermann_vehicle/camera1/image_raw', Image, self._camera_subscriber, queue_size = 1)
 
         self.action_space = spaces.Box(low=np.array([0, -1]), high=np.array([1,1]), shape=(2,)) #speed, steering angle
         self.reward_range = (-np.inf, np.inf)
@@ -141,13 +144,24 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         self._general_args = [f'world_name:={track_name}']
 
         print('Starting env launchers')
+        rospy.set_param('/use_sim_time', True)
         self._load_world(self._general_args, self._world_loader_args)
+
+        self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty, persistent=True)
+        self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty, persistent=True)
+        self.reward_proxy = rospy.ServiceProxy('/ackermann_vehicle/reward', GetSingleReward, persistent=True)
+
+        self._resetGazebo()
+        # rospy.loginfo('Sleeping for 3s while gazebo loads')
+        time.sleep(3)
+
         self._spawn_car(self._general_args, [])
         self._start_support_publishers(self._general_args, self._support_publishers_args)
 
-        self._resetGazebo()
-        rospy.loginfo('Sleeping for 3s while gazebo loads')
-        time.sleep(3)
+        self.list_ctrlrs.wait_for_service()
+        # rospy.loginfo('Sleeping for 5s for controllers to spawn and be up')
+        # time.sleep(5)
+        self._wait_for_ctrlr()
 
         self._resumeGazebo()
 
@@ -191,7 +205,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         return [seed]
     
     def _rewardCalc(self):
-        rospy.wait_for_service('/ackermann_vehicle/reward')
+        # rospy.wait_for_service('/ackermann_vehicle/reward')
         try:
             response = self.reward_proxy()
             return response.reward, response.done
@@ -215,7 +229,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
             print ("/gazebo/reset_simulation service call failed")
     
     def _pauseGazebo(self):
-        rospy.wait_for_service('/gazebo/pause_physics')
+        # rospy.wait_for_service('/gazebo/pause_physics')
         try:
             self.pause()
         except (rospy.ServiceException) as e:
@@ -223,7 +237,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     
     def _resumeGazebo(self):
         # Unpause simulation to make observation
-        rospy.wait_for_service('/gazebo/unpause_physics')
+        # rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             self.unpause()
         except (rospy.ServiceException) as e:
@@ -250,7 +264,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         cli_args = [self._world_loader_path] + general_args + world_loader_args
         roslaunch_args = general_args + world_loader_args
         roslaunch_file = [(roslaunch.rlutil.resolve_launch_arguments(cli_args)[0], roslaunch_args)]
-        self._world_loader_parent = roslaunch.parent.ROSLaunchParent(self._world_loader_uuid, roslaunch_files=roslaunch_file)
+        self._world_loader_parent = roslaunch.parent.ROSLaunchParent(self._world_loader_uuid, roslaunch_files=roslaunch_file, show_summary=False)
         self._world_loader_parent.start()
         print('World Loader Started')
 
@@ -260,7 +274,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         cli_args = [self._car_spawner_path] + general_args + car_spawner_args
         roslaunch_args = general_args + car_spawner_args
         roslaunch_file = [(roslaunch.rlutil.resolve_launch_arguments(cli_args)[0], roslaunch_args)]
-        self._car_spawner_parent = roslaunch.parent.ROSLaunchParent(self._car_spawner_uuid, roslaunch_files=roslaunch_file)
+        self._car_spawner_parent = roslaunch.parent.ROSLaunchParent(self._car_spawner_uuid, roslaunch_files=roslaunch_file, show_summary=False)
         self._car_spawner_parent.start()
         print('Car Spawner Started')
     
@@ -270,7 +284,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         cli_args = [self._support_publishers_path] + general_args + support_publishers_args
         roslaunch_args = general_args + support_publishers_args
         roslaunch_file = [(roslaunch.rlutil.resolve_launch_arguments(cli_args)[0], roslaunch_args)]
-        self._support_publishers_parent = roslaunch.parent.ROSLaunchParent(self._support_publishers_uuid, roslaunch_files=roslaunch_file)
+        self._support_publishers_parent = roslaunch.parent.ROSLaunchParent(self._support_publishers_uuid, roslaunch_files=roslaunch_file, show_summary=False)
         self._support_publishers_parent.start()
         print('Support Publishers Started')
     
@@ -281,3 +295,15 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     
     def seed(self, seed=None):
         self._seed(seed)
+
+    def _wait_for_ctrlr(self):
+    # Wait for the specified controller to be in the "running" state.
+    # Commands can be lost if they are published before their controller is
+    # running, even if a latched publisher is used.
+
+        while True:
+            response = self.list_ctrlrs()
+            for ctrlr in response.controller:
+                if ctrlr.state == "running":
+                    return
+                rospy.sleep(0.1)
