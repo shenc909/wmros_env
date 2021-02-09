@@ -18,7 +18,7 @@ import time
 import importlib
 from controller_manager_msgs.srv import ListControllers
 
-importlib.reload(rospy)
+# importlib.reload(rospy)
 
 
 STATE_W = 64
@@ -46,6 +46,10 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     """
 
     def __init__(self, step_size=0.1, waypoint_threshold=1.0, waypoint_reward_mult=1.0, time_reward=-1.0, gazebo_gui=False):
+
+        if rospy.is_shutdown():
+            raise(KeyboardInterrupt)
+        
         # Launch the simulation with the given launchfile name
         self.step_size = step_size
         # self.rospack = rospkg.RosPack()
@@ -96,6 +100,10 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         self._seed()
 
     def step(self, action):
+        
+        if rospy.is_shutdown():
+            raise(KeyboardInterrupt)
+
         self._resumeGazebo()
 
         ackermann_cmd = AckermannDrive()
@@ -130,6 +138,9 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     
     def reset(self):
         
+        if rospy.is_shutdown():
+            raise(KeyboardInterrupt)
+
         try:
             print('Stopping World')
             self._world_loader_parent.shutdown()
@@ -205,7 +216,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
         return [seed]
     
     def _rewardCalc(self):
-        # rospy.wait_for_service('/ackermann_vehicle/reward')
+        rospy.wait_for_service('/ackermann_vehicle/reward')
         try:
             response = self.reward_proxy()
             return response.reward, response.done
@@ -229,7 +240,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
             print ("/gazebo/reset_simulation service call failed")
     
     def _pauseGazebo(self):
-        # rospy.wait_for_service('/gazebo/pause_physics')
+        rospy.wait_for_service('/gazebo/pause_physics')
         try:
             self.pause()
         except (rospy.ServiceException) as e:
@@ -237,7 +248,7 @@ class GazeboRaceCarEnv(gazebo_env.GazeboEnv):
     
     def _resumeGazebo(self):
         # Unpause simulation to make observation
-        # rospy.wait_for_service('/gazebo/unpause_physics')
+        rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             self.unpause()
         except (rospy.ServiceException) as e:

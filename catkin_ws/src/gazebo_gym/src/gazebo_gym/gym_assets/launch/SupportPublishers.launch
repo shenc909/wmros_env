@@ -18,6 +18,6 @@
     <arg name="threshold_distance" value="$(arg threshold_distance)" />
   </include>
 
-  <include file="$(find gazebo_gym)/launch/camera_subscriber.launch" />
+  <!-- <include file="$(find gazebo_gym)/launch/camera_subscriber.launch" /> -->
 
 </launch>
