@@ -34,15 +34,17 @@ def main(args):
     if verbose_stderr:
         SUPPRESS_STDERR = False
 
-    with suppressor.suppress_output(suppress_stdout=SUPPRESS_STDOUT,suppress_stderr=SUPPRESS_STDERR):
-        env = make_env(env_name, waypoint_reward_mult=WAYPOINT_REWARD_MULTIPLIER, time_reward=TIME_PENALTY, gazebo_gui=False, step_size=0.02)
+    
     episode_num = 0
+
+    with suppressor.suppress_output(suppress_stdout=SUPPRESS_STDOUT,suppress_stderr=SUPPRESS_STDERR):
+        env = make_env(env_name, waypoint_reward_multi=WAYPOINT_REWARD_MULTIPLIER, timestep_reward=TIME_PENALTY, step_freq=60, render_mode='headless')
 
     while episode_num < total_episodes:
 
         episode_id = random.randint(0, 2**31 - 1)
         filename = DIR_NAME + str(episode_id) + ".npz"
-        
+        # input()
         with suppressor.suppress_output(suppress_stdout=SUPPRESS_STDOUT,suppress_stderr=SUPPRESS_STDERR):
             observation = env.reset()
 
@@ -59,9 +61,14 @@ def main(args):
         # input('Paused, waiting for keyboard input')
 
         while time_step_num < time_steps:
+
+            # input()
             
             if time_step_num % action_refresh_rate == 0:
                 action = env.action_space.sample()
+                # small push to explore environment
+                if time_step_num < 100:
+                    action[0] = 0.5
                 if verbose:
                     print(f'action@timestep {time_step_num}: {action}')
             
@@ -76,7 +83,7 @@ def main(args):
                 print(f'reward@timestep {time_step_num}: {reward}')
 
             if render:
-                renderView(observation)
+                env.render()
             
             time_step_num += 1
         
@@ -89,7 +96,7 @@ def main(args):
                             reward=reward_sequence, done=done_sequence)
         
         episode_num += 1
-        # env.close()
+    env.close()
         # print('Sleeping for 10s')
         # time.sleep(10)
 

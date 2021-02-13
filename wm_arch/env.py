@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 from gazebo_gym.gazebo_racecar_env import GazeboRaceCarEnv
+from worldmodel_bullet.SingleRacecar import SingleRacecar
 
-def make_env(env_name, seed=-1, model=None, render_mode=False, **kwargs):
+def make_env(env_name, seed=-1, model=None, **kwargs):
     if env_name == 'single_racecar':
         """
         Create a single car Gazebo Environment
@@ -19,6 +20,14 @@ def make_env(env_name, seed=-1, model=None, render_mode=False, **kwargs):
         """
         env = GazeboRaceCarEnv(**kwargs)
         if (seed >= 0):
+            env.seed(seed)
+        
+        return env
+    
+    elif env_name == 'single_racecar_bullet':
+
+        env = SingleRacecar(**kwargs)
+        if seed >= 0:
             env.seed(seed)
         
         return env

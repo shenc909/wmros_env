@@ -6,6 +6,10 @@ import time
 import pkgutil
 import numpy as np
 import cv2
+import sys
+
+SUPPRESS_STDOUT = True
+SUPPRESS_STDERR = True
 
 class SimulationManager:
 
@@ -66,6 +70,8 @@ class SimulationManager:
     
     def reset_simulation(self):
         p.resetSimulation()
+        p.setGravity(0,0,-9.81)
+        p.setRealTimeSimulation(0)
 
 class SimulatedCar:
 
@@ -77,10 +83,11 @@ class SimulatedCar:
 
         self.render_mode = render_mode
         start_orientation = p.getQuaternionFromEuler(start_orientation)
+        
         self.car = p.loadURDF(os.path.join(self.urdf_path, 'f10_racecar/racecar_differential.urdf'), start_position, start_orientation)
 
         for wheel in range(p.getNumJoints(self.car)):
-            print("joint[",wheel,"]=", p.getJointInfo(self.car,wheel))
+            # print("joint[",wheel,"]=", p.getJointInfo(self.car,wheel))
             p.setJointMotorControl2(self.car,wheel,p.VELOCITY_CONTROL,targetVelocity=0,force=0)
             p.getJointInfo(self.car,wheel)
 
@@ -128,7 +135,7 @@ class SimulatedCar:
         for wheel in self.wheels:
             p.setJointMotorControl2(self.car,wheel,p.VELOCITY_CONTROL,targetVelocity=wheel_vel,force=max_force)
     
-    def set_steering(self, steering_angle):
+    def set_steering(self, steering_angle=0):
 
         for steer in self.steering:
             p.setJointMotorControl2(self.car,steer,p.POSITION_CONTROL,targetPosition=-steering_angle)
@@ -143,7 +150,7 @@ class SimulatedCar:
 
         _, orientation = p.getBasePositionAndOrientation(self.car)
         
-        if quaternion:
+        if not quaternion:
             orientation =  p.getEulerFromQuaternion(orientation)
         
         return orientation
