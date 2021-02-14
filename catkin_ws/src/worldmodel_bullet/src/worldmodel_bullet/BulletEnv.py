@@ -26,7 +26,7 @@ class BulletEnv(gym.Env):
         #
         self.ros_master_uri = os.environ["ROS_MASTER_URI"];
 
-        print("ROS_MASTER_URI=http://localhost:"+self.port + "\n")
+        # print("ROS_MASTER_URI=http://localhost:"+self.port + "\n")
 
         # self.port = os.environ.get("ROS_PORT_SIM", "11311")
         ros_path = os.path.dirname(subprocess.check_output(["which", "roscore"]))
@@ -41,7 +41,7 @@ class BulletEnv(gym.Env):
         self._uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, roslaunch_files=[], is_core=True, show_summary=False)
         # self._roslaunch = subprocess.Popen([sys.executable, os.path.join(ros_path, b"roslaunch"), "-p", self.port, fullpath] + launch_args)
-        self._roslaunch_parent.start()
+        # self._roslaunch_parent.start()
 
     def step(self, action):
 

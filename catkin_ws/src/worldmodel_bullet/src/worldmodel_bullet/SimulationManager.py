@@ -29,6 +29,7 @@ class SimulationManager:
             print("plugin=", self.plugin)
             p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
             p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+            # p.setPhysicsEngineParameter(enableFileCaching=0)
 
         p.resetSimulation()
         p.setGravity(0,0,-9.81)
@@ -72,6 +73,9 @@ class SimulationManager:
         p.resetSimulation()
         p.setGravity(0,0,-9.81)
         p.setRealTimeSimulation(0)
+    
+    def close(self):
+        p.disconnect()
 
 class SimulatedCar:
 

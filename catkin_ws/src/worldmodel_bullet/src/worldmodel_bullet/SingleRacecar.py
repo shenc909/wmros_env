@@ -1,13 +1,8 @@
 #!/usr/bin/env python
 
 from worldmodel_bullet.BulletEnv import BulletEnv
-import rospy
 from worldmodel_bullet.SimulationManager import SimulationManager, SimulatedCar
 from worldmodel_bullet.RewardCalculator import RewardCalculator
-from geometry_msgs.msg import Point, Quaternion, Pose
-from std_msgs.msg import Float32
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
 import cv2
 import gym
 from gym.utils import seeding
@@ -28,6 +23,15 @@ STABILISE_TIMESTEP = 50
 
 DEFAULT_SPAWN_HEIGHT = 0.1
 
+ROS_ENABLE = False
+
+if ROS_ENABLE:
+    import rospy
+    from cv_bridge import CvBridge
+    from geometry_msgs.msg import Point, Quaternion, Pose
+    from std_msgs.msg import Float32
+    from sensor_msgs.msg import Image
+
 class SingleRacecar(BulletEnv):
 
     def __init__(self, waypoint_threshold=1.0, waypoint_reward_multi=1.0, timestep_reward=-1.0, render_mode='headless', step_freq=240):
@@ -43,13 +47,14 @@ class SingleRacecar(BulletEnv):
         self.step_num = self._steps_calc(self.step_freq)
 
         self.sm = SimulationManager(render_mode=self.render_mode)
-        rospy.init_node('bullet_gym', anonymous=True)
+        
+        if ROS_ENABLE:
+            rospy.init_node('bullet_gym', anonymous=True)
+            self.pose_pub = rospy.Publisher('/ackermann_vehicle/pose', Pose, queue_size=10)
+            self.reward_pub = rospy.Publisher('/ackermann_vehicle/reward', Float32, queue_size=10)
+            self.camera_pub = rospy.Publisher('/ackermann_vehicle/camera0/image_raw', Image, queue_size=10)
 
-        self.pose_pub = rospy.Publisher('/ackermann_vehicle/pose', Pose, queue_size=10)
-        self.reward_pub = rospy.Publisher('/ackermann_vehicle/reward', Float32, queue_size=10)
-        self.camera_pub = rospy.Publisher('/ackermann_vehicle/camera0/image_raw', Image, queue_size=10)
-
-        self.bridge = CvBridge()
+            self.bridge = CvBridge()
 
         self.action_space = spaces.Box(low=np.array([0, -1]), high=np.array([1,1]), shape=(2,)) #speed, steering angle
         self.reward_range = (-np.inf, np.inf)
@@ -62,7 +67,9 @@ class SingleRacecar(BulletEnv):
         self._seed(seed)
     
     def reset(self):
-        self._rospy_check()
+        if ROS_ENABLE:
+            self._rospy_check()
+
         self.sm.reset_simulation()
         random_track_num = np.random.randint(1, 20)
         random_track_name = f'track{random_track_num}'
@@ -77,21 +84,24 @@ class SingleRacecar(BulletEnv):
             # print('stabbing')
             self.sm.step_simulation()
 
-            img = self.sc.get_image()
+            img = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
 
             self.state = img
         
         # print('stab done')
         
-        img_msg = img * 255
-        img_msg = img_msg.astype(np.uint8)
-        img_msg = self.bridge.cv2_to_imgmsg(img_msg, encoding='rgb8')
-        self.camera_pub.publish(img_msg)
+        if ROS_ENABLE:
+            img_msg = img * 255
+            img_msg = img_msg.astype(np.uint8)
+            img_msg = self.bridge.cv2_to_imgmsg(img_msg, encoding='rgb8')
+            self.camera_pub.publish(img_msg)
 
         return img
     
     def step(self, action):
-        self._rospy_check()
+        if ROS_ENABLE:
+            self._rospy_check()
+
         speed = action[0]
         steering = action[1]
 
@@ -106,10 +116,11 @@ class SingleRacecar(BulletEnv):
         state = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
         self.state = state
 
-        img_msg = state * 255
-        img_msg = img_msg.astype(np.uint8)
-        img_msg = self.bridge.cv2_to_imgmsg(img_msg, encoding='rgb8')
-        self.camera_pub.publish(img_msg)
+        if ROS_ENABLE:
+            img_msg = state * 255
+            img_msg = img_msg.astype(np.uint8)
+            img_msg = self.bridge.cv2_to_imgmsg(img_msg, encoding='rgb8')
+            self.camera_pub.publish(img_msg)
 
         pos, ori = self._getPose()
 
@@ -121,7 +132,9 @@ class SingleRacecar(BulletEnv):
         if self.render_mode in ['headless', 'human']:
             cv2.destroyAllWindows()
 
-        self._close()
+        self.sm.close()
+        if ROS_ENABLE:
+            self._close()
     
     def render(self):
 
@@ -139,23 +152,25 @@ class SingleRacecar(BulletEnv):
     def _getPose(self):
         pos = self.sc.get_position()
         ori = self.sc.get_orientation(quaternion=True)
-        pose_msg = Pose()
 
-        pos_msg = Point()
-        pos_msg.x = pos[0]
-        pos_msg.y = pos[1]
-        pos_msg.z = pos[2]
+        if ROS_ENABLE:
+            pose_msg = Pose()
 
-        ori_msg = Quaternion()
-        ori_msg.x = ori[0]
-        ori_msg.y = ori[1]
-        ori_msg.z = ori[2]
-        ori_msg.w = ori[3]
+            pos_msg = Point()
+            pos_msg.x = pos[0]
+            pos_msg.y = pos[1]
+            pos_msg.z = pos[2]
 
-        pose_msg.position = pos_msg
-        pose_msg.orientation = ori_msg
+            ori_msg = Quaternion()
+            ori_msg.x = ori[0]
+            ori_msg.y = ori[1]
+            ori_msg.z = ori[2]
+            ori_msg.w = ori[3]
 
-        self.pose_pub.publish(pose_msg)
+            pose_msg.position = pos_msg
+            pose_msg.orientation = ori_msg
+
+            self.pose_pub.publish(pose_msg)
 
         return pos, ori
     
@@ -175,7 +190,8 @@ class SingleRacecar(BulletEnv):
         
         return step_num
     
-    def _rospy_check(self):
+    if ROS_ENABLE:
+        def _rospy_check(self):
 
-        if rospy.is_shutdown():
-            raise KeyboardInterrupt
+            if rospy.is_shutdown():
+                raise KeyboardInterrupt

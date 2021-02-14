@@ -32,7 +32,7 @@ def import_data(N, M):
 
   for file in filelist:
       try:
-        new_data = np.load(DIR_NAME + file)['obs']
+        new_data = np.load(DIR_NAME + file, allow_pickle=True)['obs']
         data[idx:(idx + M), :, :, :] = new_data
 
         idx = idx + M

@@ -37,10 +37,13 @@ def main(args):
     
     episode_num = 0
 
-    with suppressor.suppress_output(suppress_stdout=SUPPRESS_STDOUT,suppress_stderr=SUPPRESS_STDERR):
-        env = make_env(env_name, waypoint_reward_multi=WAYPOINT_REWARD_MULTIPLIER, timestep_reward=TIME_PENALTY, step_freq=60, render_mode='headless')
+    # with suppressor.suppress_output(suppress_stdout=SUPPRESS_STDOUT,suppress_stderr=SUPPRESS_STDERR):
+    #     env = make_env(env_name, waypoint_reward_multi=WAYPOINT_REWARD_MULTIPLIER, timestep_reward=TIME_PENALTY, step_freq=60, render_mode='headless')
 
     while episode_num < total_episodes:
+
+        with suppressor.suppress_output(suppress_stdout=SUPPRESS_STDOUT,suppress_stderr=SUPPRESS_STDERR):
+            env = make_env(env_name, waypoint_reward_multi=WAYPOINT_REWARD_MULTIPLIER, timestep_reward=TIME_PENALTY, step_freq=60, render_mode='headless')
 
         episode_id = random.randint(0, 2**31 - 1)
         filename = DIR_NAME + str(episode_id) + ".npz"
@@ -96,7 +99,7 @@ def main(args):
                             reward=reward_sequence, done=done_sequence)
         
         episode_num += 1
-    env.close()
+        env.close()
         # print('Sleeping for 10s')
         # time.sleep(10)
 
