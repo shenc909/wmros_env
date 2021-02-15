@@ -239,15 +239,15 @@ def follower():
     if dream_mode:
       new_model.make_env(current_env_name + '_dream', model = dream_model)
     else:
-      if first_run:
-        new_model.make_env(current_env_name)
-        first_run = False
-      else:
-        new_model.env.reset()
+      # if first_run:
+      new_model.make_env(current_env_name)
+        # first_run = False
+      # else:
+        # new_model.env.reset()
 
 
     for i, solution in enumerate(solutions):
-      # print(f'working on solution {i+1} of {len(solutions)}')
+      print(f'working on solution {i+1} of {len(solutions)}')
       worker_id, jobidx, seed, max_len, weights = solution
       
       worker_id = int(worker_id)
@@ -261,7 +261,7 @@ def follower():
       results.append([worker_id, jobidx, fitness, timesteps])
 
     
-    # new_model.env.close()
+    new_model.env.close()
 
     result_packet = encode_result_packet(results)
     assert len(result_packet) == RESULT_PACKET_SIZE
@@ -435,7 +435,8 @@ def leader():
     # sprint(np.array(es.current_param()).round(4).sum())
 
     
-
+    sprint(f'current step: {t}')
+    
     if (t == 1):
       best_reward_eval = avg_reward
     if (t % eval_steps == 0): # evaluate on actual task at hand

@@ -99,10 +99,10 @@ class Model:
 
     self.render_mode = False
 
-  def make_env(self, env_name, seed=-1, render_mode=False, model = None):
+  def make_env(self, env_name, seed=-1, render_mode='headless', model = None):
     self.render_mode = render_mode
     self.env_name = env_name
-    self.env = make_env(env_name, seed=seed, render_mode=render_mode, model = model)
+    self.env = make_env(env_name, seed=seed, model = model)
 
 
   def get_action(self, x, t=0, add_noise=False):
@@ -234,6 +234,8 @@ def simulate(model, num_episode=5, seed=-1, max_len=-1, generate_data_mode = Fal
       # else:
       #   model.env.render('rgb_array')
 
+      # model.env.render()
+
       vae_encoded_obs = model.update(obs, t)
 
       input_to_rnn = [np.array([[np.concatenate([vae_encoded_obs, action, [reward]])]]),np.array([model.hidden]),np.array([model.cell_values])]
@@ -261,7 +263,7 @@ def simulate(model, num_episode=5, seed=-1, max_len=-1, generate_data_mode = Fal
       start = time.process_time()
       obs, reward, done, _ = model.env.step(action)
 
-      print(f'action:{action}    reward:{reward}')
+      # print(f'action:{action}    reward:{reward}')
 
       new_time = time.process_time() - start
       avg_time[1] = ((avg_time[1] * count_times[1]) + new_time) / (count_times[1] + 1)

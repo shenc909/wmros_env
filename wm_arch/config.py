@@ -1,8 +1,8 @@
 import numpy as np
 import random
 
-train_envs = ['single_racecar']
-test_envs = ['single_racecar']
+train_envs = ['single_racecar_bullet']
+test_envs = ['single_racecar_bullet']
 
 def generate_data_action(t, env):
     #for the car racing example, it is important to give the car a 'push' early in the exploration so that it can find different examples of curved track.
