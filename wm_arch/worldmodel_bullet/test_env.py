@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from .../worldmodel_bullet.SingleRacecar import SingleRacecar
+from SingleRacecar import SingleRacecar
 import cv2
 
 sr = SingleRacecar(render_mode='headless')
