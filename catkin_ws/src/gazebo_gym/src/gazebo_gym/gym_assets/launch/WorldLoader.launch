@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<launch>
+  <!-- common args -->
+  <arg name="namespace" default="ackermann_vehicle"/>
+  <arg name="world_name" default="track1" />
+  
+  <!-- Gazebo world args -->
+  <arg name="gazebo_gui" default="false"/>
+  
+  <include file="$(find worldmodel_maps)/launch/launch_world.launch">
+    <arg name="world_name" value="$(arg world_name)"/>
+    <arg name="gui" value="$(arg gazebo_gui)"/>
+  </include>
+
+</launch>

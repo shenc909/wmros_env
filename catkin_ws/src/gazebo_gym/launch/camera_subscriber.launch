@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="namespace" default="ackermann_vehicle"/>
+  <arg name="camera_image_topic" default="camera1/image_raw" />
+
+  <group ns="$(arg namespace)">
+    <node name="camera_subscriber" pkg="gazebo_gym" type="camera_subscriber.py">
+        <param name="namespace" value="$(arg namespace)" />
+        <param name="camera_image_topic" value="$(arg camera_image_topic)" />
+    </node>
+  </group>
+
+</launch>
