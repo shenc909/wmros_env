@@ -14,7 +14,7 @@ import shlex
 class BulletEnv(gym.Env):
     """Superclass for all Bullet environments.
     """
-    metadata = {'render.modes': ['human', 'headless']}
+    metadata = {'render.modes': ['human', 'headless','rgb_array']}
 
     def __init__(self):
 

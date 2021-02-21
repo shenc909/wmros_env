@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from gazebo_gym.gazebo_racecar_env import GazeboRaceCarEnv
-from worldmodel_bullet.SingleRacecar import SingleRacecar
+import sys
 
 def make_env(env_name, seed=-1, model=None, **kwargs):
     if env_name == 'single_racecar':
@@ -18,6 +17,10 @@ def make_env(env_name, seed=-1, model=None, **kwargs):
 
         time_reward -- reward gained per second
         """
+
+        sys.path.append('../catkin_ws/src/gazebo_gym/src')
+        from gazebo_gym.gazebo_racecar_env import GazeboRaceCarEnv
+
         env = GazeboRaceCarEnv(**kwargs)
         if (seed >= 0):
             env.seed(seed)
@@ -25,7 +28,8 @@ def make_env(env_name, seed=-1, model=None, **kwargs):
         return env
     
     elif env_name == 'single_racecar_bullet':
-
+        sys.path.append('../catkin_ws/src/worldmodel_bullet/src')
+        from worldmodel_bullet.SingleRacecar import SingleRacecar
         env = SingleRacecar(**kwargs)
         if seed >= 0:
             env.seed(seed)

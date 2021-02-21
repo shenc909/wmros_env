@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-import rospy
-import rospkg
+# import rospy
+# import rospkg
 from std_msgs.msg import Float64, Bool
 import numpy as np
+import os
+from pathlib import Path
 
 COORD_PATH = 'assets/track_coords'
 PKG_NAME = 'worldmodel_bullet'
@@ -19,7 +21,7 @@ class RewardCalculator:
         self.waypoint_reward_multi = waypoint_reward_multi
         self.timestep_reward = timestep_reward
         self.threshold_distance = threshold_distance
-        self.rospack = rospkg.RosPack()
+        # self.rospack = rospkg.RosPack()
 
         # Load waypoints for track
         self._loadWaypoints()
@@ -62,5 +64,6 @@ class RewardCalculator:
         return []
     
     def _loadWaypoints(self):
-        path = self.rospack.get_path(PKG_NAME)
+        # path = self.rospack.get_path(PKG_NAME)
+        path = os.path.join(Path(__file__).resolve().parent, '../../')
         self.waypoints = np.load(f'{path}/src/{PKG_NAME}/{COORD_PATH}/{self.track_name}.dxf.npy')

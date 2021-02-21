@@ -1,6 +1,7 @@
 import pybullet as p
 import pybullet_data
-import rospkg
+from pathlib import Path
+# import rospkg
 import os
 import time
 import pkgutil
@@ -14,9 +15,10 @@ SUPPRESS_STDERR = True
 class SimulationManager:
 
     def __init__(self, render_mode):
-        self.ros_root = rospkg.get_ros_root()
-        self.rospkg = rospkg.RosPack()
-        self.pkg_path = self.rospkg.get_path('worldmodel_bullet')
+        # self.ros_root = rospkg.get_ros_root()
+        # self.rospkg = rospkg.RosPack()
+        # self.pkg_path = self.rospkg.get_path('worldmodel_bullet')
+        self.pkg_path = os.path.join(Path(__file__).resolve().parent, '../../')
         self.tracks_path = os.path.join(self.pkg_path, 'tracks/')
         self.render_mode = render_mode
         
@@ -44,7 +46,7 @@ class SimulationManager:
         road_path = os.path.join(self.tracks_path, f'{track_name}_road.obj')
         return field_path, lines_path, road_path
 
-    def spawn_track(self, track_name='track1', field_friction=50, road_friction=50, lines_friction=50):
+    def spawn_track(self, track_name='track1', field_friction=30, road_friction=100, lines_friction=50):
         field_path, lines_path, road_path = self.get_track_paths(track_name)
 
         collision_id = p.createCollisionShape(p.GEOM_MESH,fileName=field_path, meshScale=1.0, flags=p.GEOM_FORCE_CONCAVE_TRIMESH)
@@ -80,9 +82,10 @@ class SimulationManager:
 class SimulatedCar:
 
     def __init__(self, start_position=[0,0,0], start_orientation=[0,0,0], render_mode='headless'):
-        self.ros_root = rospkg.get_ros_root()
-        self.rospkg = rospkg.RosPack()
-        self.pkg_path = self.rospkg.get_path('worldmodel_bullet')
+        # self.ros_root = rospkg.get_ros_root()
+        # self.rospkg = rospkg.RosPack()
+        # self.pkg_path = self.rospkg.get_path('worldmodel_bullet')
+        self.pkg_path = os.path.join(Path(__file__).resolve().parent, '../../')
         self.urdf_path = os.path.join(self.pkg_path, 'urdf/')
 
         self.render_mode = render_mode

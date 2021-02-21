@@ -99,7 +99,7 @@ class Model:
 
     self.render_mode = False
 
-  def make_env(self, env_name, seed=-1, render_mode='headless', model = None):
+  def make_env(self, env_name, seed=-1, render_mode='rgb_array', model = None):
     self.render_mode = render_mode
     self.env_name = env_name
     self.env = make_env(env_name, seed=seed, model = model)
@@ -185,7 +185,7 @@ def simulate(model, num_episode=5, seed=-1, max_len=-1, generate_data_mode = Fal
   reward_list = []
   t_list = []
 
-  max_episode_length = 1000
+  max_episode_length = 100000
 
   if max_len > 0:
     if max_len < max_episode_length:
@@ -205,6 +205,8 @@ def simulate(model, num_episode=5, seed=-1, max_len=-1, generate_data_mode = Fal
 
     model.reset()
 
+    # obs = model.env.reset()
+    # action = [0,0]
     obs = model.env.reset()
     reward = 0
     action = np.array([0,0])
@@ -337,7 +339,7 @@ def main(args):
     while(1):
       reward, steps_taken = simulate(model, render_mode=render_mode, num_episode=1, max_len = max_length, generate_data_mode = generate_data_mode)
       print ("terminal reward", reward, "average steps taken", np.mean(steps_taken)+1)
-      #break
+      break
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=('View a trained agent'))
