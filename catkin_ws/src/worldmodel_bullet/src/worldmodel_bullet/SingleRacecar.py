@@ -13,7 +13,7 @@ STATE_W = 64
 STATE_H = 64
 
 MIN_SPEED = 0
-MAX_SPEED = 300
+MAX_SPEED = 120
 
 MAX_FORCE = 30
 
@@ -34,7 +34,7 @@ if ROS_ENABLE:
 
 class SingleRacecar(BulletEnv):
 
-    def __init__(self, waypoint_threshold=1.0, waypoint_reward_multi=1.0, timestep_reward=-1.0, render_mode='headless', step_freq=240):
+    def __init__(self, waypoint_threshold=1.0, waypoint_reward_multi=10.0, timestep_reward=-0.1, render_mode='headless', step_freq=240):
         
         BulletEnv.__init__(self)
 
@@ -75,7 +75,7 @@ class SingleRacecar(BulletEnv):
         random_track_name = f'track{random_track_num}'
         self.sm.spawn_track(random_track_name)
 
-        self.rc = RewardCalculator(track_name=random_track_name, waypoint_reward_multi=1, timestep_reward=-0.1, threshold_distance=self.waypoint_threshold)
+        self.rc = RewardCalculator(track_name=random_track_name, waypoint_reward_multi=self.waypoint_reward_multi, timestep_reward=self.timestep_reward, threshold_distance=self.waypoint_threshold)
 
         self.sc = SimulatedCar(start_position=[0,0,DEFAULT_SPAWN_HEIGHT], render_mode=self.render_mode)
 
