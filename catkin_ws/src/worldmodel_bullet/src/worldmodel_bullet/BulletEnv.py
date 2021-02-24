@@ -2,7 +2,7 @@
 
 import gym
 # import rospy
-import roslaunch
+# import roslaunch
 import sys
 import os
 import signal
@@ -38,8 +38,8 @@ class BulletEnv(gym.Env):
         # time.sleep(1)
         # print ("Roscore launched!")
         
-        self._uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-        self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, roslaunch_files=[], is_core=True, show_summary=False)
+        # self._uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+        # self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, roslaunch_files=[], is_core=True, show_summary=False)
         # self._roslaunch = subprocess.Popen([sys.executable, os.path.join(ros_path, b"roslaunch"), "-p", self.port, fullpath] + launch_args)
         # self._roslaunch_parent.start()
 
@@ -58,7 +58,8 @@ class BulletEnv(gym.Env):
         pass
 
     def _close(self):
-        self._roslaunch_parent.shutdown()
+        pass
+        # self._roslaunch_parent.shutdown()
 
 
     def _configure(self):
