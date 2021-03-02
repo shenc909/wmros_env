@@ -46,7 +46,7 @@ class SimulationManager:
         road_path = os.path.join(self.tracks_path, f'{track_name}_road.obj')
         return field_path, lines_path, road_path
 
-    def spawn_track(self, track_name='track1', field_friction=30, road_friction=100, lines_friction=50):
+    def spawn_track(self, track_name='track1', field_friction=50, road_friction=150, lines_friction=100):
         field_path, lines_path, road_path = self.get_track_paths(track_name)
 
         collision_id = p.createCollisionShape(p.GEOM_MESH,fileName=field_path, meshScale=1.0, flags=p.GEOM_FORCE_CONCAVE_TRIMESH)
@@ -137,7 +137,7 @@ class SimulatedCar:
         # self.maxForceSlider = p.addUserDebugParameter("maxForce",0,50,20)
         # self.steeringSlider = p.addUserDebugParameter("steering",-1,1,0)
     
-    def set_speed(self, wheel_vel=0, max_force=20):
+    def set_speed(self, wheel_vel=0, max_force=10):
         
         for wheel in self.wheels:
             p.setJointMotorControl2(self.car,wheel,p.VELOCITY_CONTROL,targetVelocity=wheel_vel,force=max_force)
@@ -166,12 +166,15 @@ class SimulatedCar:
 
         camTargetPos, orientation = p.getBasePositionAndOrientation(self.car)
         roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
-        roll = roll / np.pi * 180
-        pitch = pitch / np.pi * 180
+        roll = -(roll / np.pi * 180)
+        pitch = -(pitch / np.pi * 180)
         yaw = yaw / np.pi * 180
         camDistance = 1.5
         yaw = yaw - 90
         pitch = -90 + pitch
+        
+        yaw = self.angle_protection(yaw)
+        pitch = self.angle_protection(pitch)
         upAxisIndex = 2
         viewMatrix = p.computeViewMatrixFromYawPitchRoll(camTargetPos, camDistance, yaw, pitch, roll,
                                                      upAxisIndex)
@@ -199,3 +202,11 @@ class SimulatedCar:
         self.img /= 255
 
         return self.img
+    
+    def angle_protection(self, angle):
+        if angle < -180:
+            angle = angle + 360
+        if angle > 180:
+            angle = angle - 360
+        
+        return angle

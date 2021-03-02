@@ -13,9 +13,9 @@ STATE_W = 64
 STATE_H = 64
 
 MIN_SPEED = 0
-MAX_SPEED = 120
+MAX_SPEED = 80
 
-MAX_FORCE = 30
+MAX_FORCE = 10
 
 DEFAULT_SIM_FREQ = 240
 
@@ -34,7 +34,7 @@ if ROS_ENABLE:
 
 class SingleRacecar(BulletEnv):
 
-    def __init__(self, waypoint_threshold=1.0, waypoint_reward_multi=10.0, timestep_reward=-0.1, render_mode='headless', step_freq=240):
+    def __init__(self, waypoint_threshold=0.7, waypoint_reward_multi=1.0, timestep_reward=-0.1, render_mode='headless', step_freq=240):
         
         BulletEnv.__init__(self)
 
@@ -76,8 +76,8 @@ class SingleRacecar(BulletEnv):
         self.sm.spawn_track(random_track_name)
 
         self.rc = RewardCalculator(track_name=random_track_name, waypoint_reward_multi=self.waypoint_reward_multi, timestep_reward=self.timestep_reward, threshold_distance=self.waypoint_threshold)
-
-        self.sc = SimulatedCar(start_position=[0,0,DEFAULT_SPAWN_HEIGHT], render_mode=self.render_mode)
+        wp, rpy = self.rc.getSpawn()
+        self.sc = SimulatedCar(start_position=[wp[0],wp[1],DEFAULT_SPAWN_HEIGHT], start_orientation=rpy, render_mode=self.render_mode)
 
         # timesteps to stabilise
         for i in range(STABILISE_TIMESTEP):
@@ -143,6 +143,8 @@ class SingleRacecar(BulletEnv):
             return (img * 255).astype(np.uint8)
 
         elif self.render_mode in ['headless', 'human']:
+            # img = self.sc.get_image(image_width=640, image_height=640)
+            # obs = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             cv2.namedWindow('observation', cv2.WINDOW_KEEPRATIO)
             obs = cv2.cvtColor(self.state, cv2.COLOR_RGB2BGR)
             cv2.imshow('observation', obs)

@@ -67,3 +67,17 @@ class RewardCalculator:
         # path = self.rospack.get_path(PKG_NAME)
         path = os.path.join(Path(__file__).resolve().parent, '../../')
         self.waypoints = np.load(f'{path}/src/{PKG_NAME}/{COORD_PATH}/{self.track_name}.dxf.npy')
+    
+    def getSpawn(self):
+        wp_idx = np.random.randint(len(self.waypoints))
+        next_wp_idx = wp_idx + 1
+        if next_wp_idx >= len(self.waypoints):
+            next_wp_idx = 0
+        
+        wp = self.waypoints[wp_idx]
+        next_wp = self.waypoints[next_wp_idx]
+        vec = next_wp - wp
+        yaw = np.arctan2(vec[1], vec[0])
+        rpy = [0, 0, yaw]
+
+        return wp, rpy

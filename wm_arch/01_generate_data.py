@@ -10,7 +10,7 @@ import suppressor
 
 DIR_NAME = './data/rollout/'
 
-WAYPOINT_REWARD_MULTIPLIER = 10.0
+WAYPOINT_REWARD_MULTIPLIER = 1.0
 TIME_PENALTY = -0.1
 SUPPRESS_STDOUT = True
 SUPPRESS_STDERR = True
@@ -70,8 +70,9 @@ def main(args):
             if time_step_num % action_refresh_rate == 0:
                 action = env.action_space.sample()
                 # small push to explore environment
-                if time_step_num < 100:
-                    action[0] = 0.5
+                if time_step_num < 60:
+                    action[0] = 0.3
+                    action[1] = 0
                 if verbose:
                     print(f'action@timestep {time_step_num}: {action}')
             
@@ -99,7 +100,8 @@ def main(args):
                             reward=reward_sequence, done=done_sequence)
         
         episode_num += 1
-        env.close()
+        env.reset()
+    env.close()
         # print('Sleeping for 10s')
         # time.sleep(10)
 
