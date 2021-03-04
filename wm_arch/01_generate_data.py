@@ -71,7 +71,7 @@ def main(args):
                 action = env.action_space.sample()
                 # small push to explore environment
                 if time_step_num < 60:
-                    action[0] = 0.3
+                    action[0] = 0.5
                     action[1] = 0
                 if verbose:
                     print(f'action@timestep {time_step_num}: {action}')
@@ -100,8 +100,8 @@ def main(args):
                             reward=reward_sequence, done=done_sequence)
         
         episode_num += 1
-        env.reset()
-    env.close()
+        # env.reset()
+        env.close()
         # print('Sleeping for 10s')
         # time.sleep(10)
 
