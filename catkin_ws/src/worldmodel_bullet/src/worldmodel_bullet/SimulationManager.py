@@ -175,8 +175,15 @@ class SimulatedCar:
         
         yaw = self.angle_protection(yaw)
         pitch = self.angle_protection(pitch)
+        
+        self.img = self._get_camera_image(yaw, pitch, roll, camDistance, camTargetPos, image_width, image_height)
+
+        return self.img
+    
+    def _get_camera_image(self, yaw=0, pitch=0, roll=0, cam_dist=0, cam_target_pos=[0,0,0], image_width=640, image_height=640):
+        
         upAxisIndex = 2
-        viewMatrix = p.computeViewMatrixFromYawPitchRoll(camTargetPos, camDistance, yaw, pitch, roll,
+        viewMatrix = p.computeViewMatrixFromYawPitchRoll(cam_target_pos, cam_dist, yaw, pitch, roll,
                                                      upAxisIndex)
         projectionMatrix = p.computeProjectionMatrixFOV(103, 1, 0.1, 100)
 
@@ -194,12 +201,35 @@ class SimulatedCar:
                                     shadow=1,
                                     lightDirection=[1, 1, 1])
         
-        self.img = img[2]
+        img = img[2]
+        img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
+        img = img.astype(np.float32)
+        img /= 255
 
-        self.img = cv2.cvtColor(self.img, cv2.COLOR_RGBA2RGB)
+        return img
+    
+    def get_fpv_image(self, image_width=640, image_height=640):
+        camTargetPos, orientation = p.getBasePositionAndOrientation(self.car)
+        camTargetPos = list(camTargetPos)
+        roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
+        v_yaw = yaw
+        v_pitch = pitch
+        roll = -(roll / np.pi * 180)
+        pitch = -(pitch / np.pi * 180)
+        yaw = yaw / np.pi * 180
+        camDistance = 0.5
+        yaw = yaw - 90
 
-        self.img = self.img.astype(np.float32)
-        self.img /= 255
+        dist_in_front = 0.5
+        camTargetPos[2] = camTargetPos[2] + 0.2
+        camTargetPos[2] = camTargetPos[2] + camTargetPos[2]*np.sin(v_pitch)
+        camTargetPos[0] = camTargetPos[0] + dist_in_front*np.cos(v_yaw)
+        camTargetPos[1] = camTargetPos[1] + dist_in_front*np.sin(v_yaw)
+        
+        yaw = self.angle_protection(yaw)
+        pitch = self.angle_protection(pitch)
+        
+        self.img = self._get_camera_image(yaw, pitch, roll, camDistance, camTargetPos, image_width, image_height)
 
         return self.img
     

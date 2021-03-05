@@ -25,6 +25,8 @@ DEFAULT_SPAWN_HEIGHT = 0.1
 
 ROS_ENABLE = False
 
+FPV = True
+
 if ROS_ENABLE:
     import rospy
     from cv_bridge import CvBridge
@@ -83,8 +85,10 @@ class SingleRacecar(BulletEnv):
         for i in range(STABILISE_TIMESTEP):
             # print('stabbing')
             self.sm.step_simulation()
-
-            img = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
+            if not FPV:
+                img = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
+            else:
+                img = self.sc.get_fpv_image(image_width=STATE_W, image_height=STATE_H)
 
             self.state = img
         
@@ -113,7 +117,10 @@ class SingleRacecar(BulletEnv):
         for i in range(self.step_num):
             self.sm.step_simulation()
 
-        state = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
+        if not FPV:
+            state = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
+        else:
+            state = self.sc.get_fpv_image(image_width=STATE_W, image_height=STATE_H)
         self.state = state
 
         if ROS_ENABLE:
