@@ -197,7 +197,7 @@ def main():
         print(f'Extracting from {dxf_file}')
 
         # create waypoints, second arg is spacing between waypoints
-        waypoints = walker(coords, 0.5)
+        waypoints = walker(coords, 0.3)
         waypoints = startZero(waypoints)
 
         if CHECK_PLOT:

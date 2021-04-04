@@ -1,6 +1,7 @@
 import pybullet as p
 import pybullet_data
-import rospkg
+from pathlib import Path
+# import rospkg
 import os
 import time
 import pkgutil
@@ -14,9 +15,10 @@ SUPPRESS_STDERR = True
 class SimulationManager:
 
     def __init__(self, render_mode):
-        self.ros_root = rospkg.get_ros_root()
-        self.rospkg = rospkg.RosPack()
-        self.pkg_path = self.rospkg.get_path('worldmodel_bullet')
+        # self.ros_root = rospkg.get_ros_root()
+        # self.rospkg = rospkg.RosPack()
+        # self.pkg_path = self.rospkg.get_path('worldmodel_bullet')
+        self.pkg_path = os.path.join(Path(__file__).resolve().parent, '../../')
         self.tracks_path = os.path.join(self.pkg_path, 'tracks/')
         self.render_mode = render_mode
         
@@ -44,7 +46,7 @@ class SimulationManager:
         road_path = os.path.join(self.tracks_path, f'{track_name}_road.obj')
         return field_path, lines_path, road_path
 
-    def spawn_track(self, track_name='track1', field_friction=50, road_friction=50, lines_friction=50):
+    def spawn_track(self, track_name='track1', field_friction=50, road_friction=150, lines_friction=100):
         field_path, lines_path, road_path = self.get_track_paths(track_name)
 
         collision_id = p.createCollisionShape(p.GEOM_MESH,fileName=field_path, meshScale=1.0, flags=p.GEOM_FORCE_CONCAVE_TRIMESH)
@@ -80,9 +82,10 @@ class SimulationManager:
 class SimulatedCar:
 
     def __init__(self, start_position=[0,0,0], start_orientation=[0,0,0], render_mode='headless'):
-        self.ros_root = rospkg.get_ros_root()
-        self.rospkg = rospkg.RosPack()
-        self.pkg_path = self.rospkg.get_path('worldmodel_bullet')
+        # self.ros_root = rospkg.get_ros_root()
+        # self.rospkg = rospkg.RosPack()
+        # self.pkg_path = self.rospkg.get_path('worldmodel_bullet')
+        self.pkg_path = os.path.join(Path(__file__).resolve().parent, '../../')
         self.urdf_path = os.path.join(self.pkg_path, 'urdf/')
 
         self.render_mode = render_mode
@@ -134,7 +137,7 @@ class SimulatedCar:
         # self.maxForceSlider = p.addUserDebugParameter("maxForce",0,50,20)
         # self.steeringSlider = p.addUserDebugParameter("steering",-1,1,0)
     
-    def set_speed(self, wheel_vel=0, max_force=20):
+    def set_speed(self, wheel_vel=0, max_force=10):
         
         for wheel in self.wheels:
             p.setJointMotorControl2(self.car,wheel,p.VELOCITY_CONTROL,targetVelocity=wheel_vel,force=max_force)
@@ -163,14 +166,24 @@ class SimulatedCar:
 
         camTargetPos, orientation = p.getBasePositionAndOrientation(self.car)
         roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
-        roll = roll / np.pi * 180
-        pitch = pitch / np.pi * 180
+        roll = -(roll / np.pi * 180)
+        pitch = -(pitch / np.pi * 180)
         yaw = yaw / np.pi * 180
         camDistance = 1.5
         yaw = yaw - 90
         pitch = -90 + pitch
+        
+        yaw = self.angle_protection(yaw)
+        pitch = self.angle_protection(pitch)
+        
+        self.img = self._get_camera_image(yaw, pitch, roll, camDistance, camTargetPos, image_width, image_height)
+
+        return self.img
+    
+    def _get_camera_image(self, yaw=0, pitch=0, roll=0, cam_dist=0, cam_target_pos=[0,0,0], image_width=640, image_height=640):
+        
         upAxisIndex = 2
-        viewMatrix = p.computeViewMatrixFromYawPitchRoll(camTargetPos, camDistance, yaw, pitch, roll,
+        viewMatrix = p.computeViewMatrixFromYawPitchRoll(cam_target_pos, cam_dist, yaw, pitch, roll,
                                                      upAxisIndex)
         projectionMatrix = p.computeProjectionMatrixFOV(103, 1, 0.1, 100)
 
@@ -188,11 +201,42 @@ class SimulatedCar:
                                     shadow=1,
                                     lightDirection=[1, 1, 1])
         
-        self.img = img[2]
+        img = img[2]
+        img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
+        img = img.astype(np.float32)
+        img /= 255
 
-        self.img = cv2.cvtColor(self.img, cv2.COLOR_RGBA2RGB)
+        return img
+    
+    def get_fpv_image(self, image_width=640, image_height=640):
+        camTargetPos, orientation = p.getBasePositionAndOrientation(self.car)
+        camTargetPos = list(camTargetPos)
+        roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
+        v_yaw = yaw
+        v_pitch = pitch
+        roll = -(roll / np.pi * 180)
+        pitch = -(pitch / np.pi * 180)
+        yaw = yaw / np.pi * 180
+        camDistance = 0.5
+        yaw = yaw - 90
 
-        self.img = self.img.astype(np.float32)
-        self.img /= 255
+        dist_in_front = 0.5
+        camTargetPos[2] = camTargetPos[2] + 0.2
+        camTargetPos[2] = camTargetPos[2] + camTargetPos[2]*np.sin(v_pitch)
+        camTargetPos[0] = camTargetPos[0] + dist_in_front*np.cos(v_yaw)
+        camTargetPos[1] = camTargetPos[1] + dist_in_front*np.sin(v_yaw)
+        
+        yaw = self.angle_protection(yaw)
+        pitch = self.angle_protection(pitch)
+        
+        self.img = self._get_camera_image(yaw, pitch, roll, camDistance, camTargetPos, image_width, image_height)
 
         return self.img
+    
+    def angle_protection(self, angle):
+        if angle < -180:
+            angle = angle + 360
+        if angle > 180:
+            angle = angle - 360
+        
+        return angle

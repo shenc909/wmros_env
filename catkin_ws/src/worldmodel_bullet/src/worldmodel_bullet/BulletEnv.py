@@ -2,7 +2,7 @@
 
 import gym
 # import rospy
-import roslaunch
+# import roslaunch
 import sys
 import os
 import signal
@@ -14,7 +14,7 @@ import shlex
 class BulletEnv(gym.Env):
     """Superclass for all Bullet environments.
     """
-    metadata = {'render.modes': ['human', 'headless']}
+    metadata = {'render.modes': ['human', 'headless','rgb_array']}
 
     def __init__(self):
 
@@ -29,7 +29,7 @@ class BulletEnv(gym.Env):
         # print("ROS_MASTER_URI=http://localhost:"+self.port + "\n")
 
         # self.port = os.environ.get("ROS_PORT_SIM", "11311")
-        ros_path = os.path.dirname(subprocess.check_output(["which", "roscore"]))
+        # ros_path = os.path.dirname(subprocess.check_output(["which", "roscore"]))
 
         # NOTE: It doesn't make sense to launch a roscore because it will be done when spawing Gazebo, which also need
         #   to be the first node in order to initialize the clock.
@@ -38,8 +38,8 @@ class BulletEnv(gym.Env):
         # time.sleep(1)
         # print ("Roscore launched!")
         
-        self._uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-        self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, roslaunch_files=[], is_core=True, show_summary=False)
+        # self._uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+        # self._roslaunch_parent = roslaunch.parent.ROSLaunchParent(self._uuid, roslaunch_files=[], is_core=True, show_summary=False)
         # self._roslaunch = subprocess.Popen([sys.executable, os.path.join(ros_path, b"roslaunch"), "-p", self.port, fullpath] + launch_args)
         # self._roslaunch_parent.start()
 
@@ -58,7 +58,8 @@ class BulletEnv(gym.Env):
         pass
 
     def _close(self):
-        self._roslaunch_parent.shutdown()
+        pass
+        # self._roslaunch_parent.shutdown()
 
 
     def _configure(self):

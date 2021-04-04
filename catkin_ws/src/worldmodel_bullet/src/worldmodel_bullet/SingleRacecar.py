@@ -13,9 +13,9 @@ STATE_W = 64
 STATE_H = 64
 
 MIN_SPEED = 0
-MAX_SPEED = 50
+MAX_SPEED = 80
 
-MAX_FORCE = 30
+MAX_FORCE = 10
 
 DEFAULT_SIM_FREQ = 240
 
@@ -24,6 +24,8 @@ STABILISE_TIMESTEP = 50
 DEFAULT_SPAWN_HEIGHT = 0.1
 
 ROS_ENABLE = False
+
+FPV = True
 
 if ROS_ENABLE:
     import rospy
@@ -34,7 +36,7 @@ if ROS_ENABLE:
 
 class SingleRacecar(BulletEnv):
 
-    def __init__(self, waypoint_threshold=1.0, waypoint_reward_multi=1.0, timestep_reward=-1.0, render_mode='headless', step_freq=240):
+    def __init__(self, waypoint_threshold=0.7, waypoint_reward_multi=1.0, timestep_reward=-0.1, render_mode='headless', step_freq=240):
         
         BulletEnv.__init__(self)
 
@@ -75,16 +77,18 @@ class SingleRacecar(BulletEnv):
         random_track_name = f'track{random_track_num}'
         self.sm.spawn_track(random_track_name)
 
-        self.rc = RewardCalculator(track_name=random_track_name, waypoint_reward_multi=1, timestep_reward=-0.1, threshold_distance=self.waypoint_threshold)
-
-        self.sc = SimulatedCar(start_position=[0,0,DEFAULT_SPAWN_HEIGHT], render_mode=self.render_mode)
+        self.rc = RewardCalculator(track_name=random_track_name, waypoint_reward_multi=self.waypoint_reward_multi, timestep_reward=self.timestep_reward, threshold_distance=self.waypoint_threshold)
+        wp, rpy = self.rc.getSpawn()
+        self.sc = SimulatedCar(start_position=[wp[0],wp[1],DEFAULT_SPAWN_HEIGHT], start_orientation=rpy, render_mode=self.render_mode)
 
         # timesteps to stabilise
         for i in range(STABILISE_TIMESTEP):
             # print('stabbing')
             self.sm.step_simulation()
-
-            img = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
+            if not FPV:
+                img = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
+            else:
+                img = self.sc.get_fpv_image(image_width=STATE_W, image_height=STATE_H)
 
             self.state = img
         
@@ -113,7 +117,10 @@ class SingleRacecar(BulletEnv):
         for i in range(self.step_num):
             self.sm.step_simulation()
 
-        state = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
+        if not FPV:
+            state = self.sc.get_image(image_width=STATE_W, image_height=STATE_H)
+        else:
+            state = self.sc.get_fpv_image(image_width=STATE_W, image_height=STATE_H)
         self.state = state
 
         if ROS_ENABLE:
@@ -129,16 +136,22 @@ class SingleRacecar(BulletEnv):
         return state, reward, done, {}
     
     def close(self):
-        if self.render_mode in ['headless', 'human']:
+        if self.render_mode in ['headless', 'human','rgb_array']:
             cv2.destroyAllWindows()
 
         self.sm.close()
         if ROS_ENABLE:
             self._close()
     
-    def render(self):
+    def render(self, mode='None'):
 
-        if self.render_mode in ['headless', 'human']:
+        if mode in ['rgb_array']:
+            img = self.sc.get_image(image_width=640, image_height=640)
+            return (img * 255).astype(np.uint8)
+
+        elif self.render_mode in ['headless', 'human']:
+            # img = self.sc.get_image(image_width=640, image_height=640)
+            # obs = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             cv2.namedWindow('observation', cv2.WINDOW_KEEPRATIO)
             obs = cv2.cvtColor(self.state, cv2.COLOR_RGB2BGR)
             cv2.imshow('observation', obs)
