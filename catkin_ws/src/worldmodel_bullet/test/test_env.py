@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+import sys
 
-from .../worldmodel_bullet.SingleRacecar import SingleRacecar
+sys.path.append('../src')
+from worldmodel_bullet.SingleRacecar import SingleRacecar
 import cv2
 
-sr = SingleRacecar(render_mode='headless')
+sr = SingleRacecar(render_mode='human')
 
 img = sr.reset()
 

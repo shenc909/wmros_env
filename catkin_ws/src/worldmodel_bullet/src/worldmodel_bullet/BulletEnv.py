@@ -29,7 +29,7 @@ class BulletEnv(gym.Env):
         # print("ROS_MASTER_URI=http://localhost:"+self.port + "\n")
 
         # self.port = os.environ.get("ROS_PORT_SIM", "11311")
-        ros_path = os.path.dirname(subprocess.check_output(["which", "roscore"]))
+        # ros_path = os.path.dirname(subprocess.check_output(["which", "roscore"]))
 
         # NOTE: It doesn't make sense to launch a roscore because it will be done when spawing Gazebo, which also need
         #   to be the first node in order to initialize the clock.
